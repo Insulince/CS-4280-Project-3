@@ -1,0 +1,17 @@
+Var a, b, c.
+Begin
+Var x, y, z.
+Input a;
+Output a4;
+Begin
+Input c;
+End
+Check [a < 5] Output b3;
+Loop [c + 3 >= 4] Output b4;
+z: 1;
+Check [b == 4] Output 1;
+Check [a <= 4] Output 2;
+Check [b > 3] Output 3;
+Check [x + y + z != 10] Output 4;
+Output [(4) % 5] + [3 + 2] - [((a)) - 5];
+End

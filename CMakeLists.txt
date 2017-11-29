@@ -3,5 +3,5 @@ project(P3)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES main.cpp)
-add_executable(P3 ${SOURCE_FILES})
+set(SOURCE_FILES main.cpp node.cpp node.h parser.cpp parser.h scanner.cpp scanner.h token.cpp token.h util.cpp util.h)
+add_executable(comp ${SOURCE_FILES})
