@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "parser.h"
+#include "code-generator.h"
 
 using namespace std;
 
@@ -120,4 +121,7 @@ const void processData(const string &rawData, const string &fileName) {
     Parser *parser = new Parser(rawData);
     Node *parseTree = parser->parse();
     cout << parseTree->toString();
+
+    CodeGenerator *codeGenerator = new CodeGenerator(parseTree);
+    cout << "\n" << codeGenerator->generateCode();
 }

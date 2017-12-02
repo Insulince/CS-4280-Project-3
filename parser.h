@@ -8,20 +8,20 @@
 /* CONTEXT-FREE GRAMMAR:
  * <program>	-> <vars> <block>
  * <block> 		-> Begin <vars> <stats> End
- * <vars> 		-> empty | Var Identifier <mvars>
- * <mvars> 		-> . | , Identifier <mvars>
+ * <vars> 		-> $empty | Var $identifier <mvars>
+ * <mvars> 		-> . | , $identifier <mvars>
  * <expr> 		-> <M> + <expr> | <M> - <expr> | <M>
  * <M> 			-> <F> % <M> | <F> * <M> | <F>
  * <F> 			-> (<F>) | <R>
- * <R>  		-> [<expr>] | Identifier | Number
+ * <R>  		-> [<expr>] | $identifier | $number
  * <stats> 		-> <stat> <mStat>
- * <mStat> 		-> empty | <stat> <mStat>
+ * <mStat> 		-> $empty | <stat> <mStat>
  * <stat> 		-> <in> | <out> | <block> | <if> | <loop> | <assign>
- * <in> 		-> Input Identifier;
+ * <in> 		-> Input $identifier;
  * <out> 		-> Output <expr>;
  * <if> 		-> Check [<expr> <RO> <expr>] <stat>
  * <loop> 		-> Loop [<expr> <RO> <expr>] <stat>
- * <assign> 	-> Identifier: <expr>;
+ * <assign> 	-> $identifier: <expr>;
  * <RO> 		-> < | <= | > | >= | == | !=
  * */
 

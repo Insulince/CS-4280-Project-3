@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "token.h"
+#include "nonterminal.h"
 
 const static int ROOT_LEVEL = 0;
 
@@ -13,9 +14,10 @@ private:
     const std::string value;
     const bool nonTerminal;
     const int level;
+    const NONTERMINAL_IDENTIFIER nonTerminalIdentifier;
     std::vector<Node *> children;
 public:
-    Node(const std::string value, const bool nonTerminal, const int level);
+    Node(const std::string value, const bool nonTerminal, const int level, const NONTERMINAL_IDENTIFIER nonterminalIdentifier);
 
     ~Node();
 
@@ -24,6 +26,8 @@ public:
     const bool isNonTerminal() const;
 
     const int getLevel() const;
+
+    const NONTERMINAL_IDENTIFIER getNonTerminalIdentifier() const;
 
     const std::vector<Node *> &getChildren() const;
 

@@ -6,8 +6,8 @@
 using namespace std;
 
 const static int VA_LIST_TERMINATOR = -1;
-const static bool NONTERMINAL = true;
-const static bool TERMINAL = false;
+const static bool NONTERMINAL_NODE = true;
+const static bool TERMINAL_NODE = false;
 
 static Token *token = nullptr;
 
@@ -26,7 +26,7 @@ void Parser::setRawData(const string &rawData) {
 }
 
 Node *Parser::parse_program(const int level) const {
-    Node *node = new Node("program", NONTERMINAL, level);
+    Node *node = new Node("program", NONTERMINAL_NODE, level, PROGRAM);
 
     node = consumeNonTerminal(node, parse_vars(level + 1));
     node = consumeNonTerminal(node, parse_block(level + 1));
@@ -35,7 +35,7 @@ Node *Parser::parse_program(const int level) const {
 }
 
 Node *Parser::parse_block(const int level) const {
-    Node *node = new Node("block", NONTERMINAL, level);
+    Node *node = new Node("block", NONTERMINAL_NODE, level, BLOCK);
 
     if (currentToken() == KEYWORD_BEGIN) {
         node = consumeTerminal(node);
@@ -56,7 +56,7 @@ Node *Parser::parse_block(const int level) const {
 }
 
 Node *Parser::parse_vars(const int level) const {
-    Node *node = new Node("vars", NONTERMINAL, level);
+    Node *node = new Node("vars", NONTERMINAL_NODE, level, VARS);
 
     if (currentToken() == KEYWORD_VAR) {
         node = consumeTerminal(node);
@@ -71,12 +71,13 @@ Node *Parser::parse_vars(const int level) const {
             reportError(IDENTIFIER, VA_LIST_TERMINATOR);
         }
     } else {
+        cout << "Empty vars node added\n";
         return node;
     }
 }
 
 Node *Parser::parse_mvars(const int level) const {
-    Node *node = new Node("mvars", NONTERMINAL, level);
+    Node *node = new Node("mvars", NONTERMINAL_NODE, level, MVARS);
 
     if (currentToken() == DELIMITER_PERIOD) {
         node = consumeTerminal(node);
@@ -100,7 +101,7 @@ Node *Parser::parse_mvars(const int level) const {
 }
 
 Node *Parser::parse_expr(const int level) const {
-    Node *node = new Node("expr", NONTERMINAL, level);
+    Node *node = new Node("expr", NONTERMINAL_NODE, level, EXPR);
 
     node = consumeNonTerminal(node, parse_M(level + 1));
 
@@ -122,7 +123,7 @@ Node *Parser::parse_expr(const int level) const {
 }
 
 Node *Parser::parse_M(const int level) const {
-    Node *node = new Node("M", NONTERMINAL, level);
+    Node *node = new Node("M", NONTERMINAL_NODE, level, M);
 
     node = consumeNonTerminal(node, parse_F(level + 1));
 
@@ -144,7 +145,7 @@ Node *Parser::parse_M(const int level) const {
 }
 
 Node *Parser::parse_F(const int level) const {
-    Node *node = new Node("F", NONTERMINAL, level);
+    Node *node = new Node("F", NONTERMINAL_NODE, level, F);
 
     if (currentToken() == DELIMITER_LEFT_PARENTHESIS) {
         node = consumeTerminal(node);
@@ -166,7 +167,7 @@ Node *Parser::parse_F(const int level) const {
 }
 
 Node *Parser::parse_R(const int level) const {
-    Node *node = new Node("R", NONTERMINAL, level);
+    Node *node = new Node("R", NONTERMINAL_NODE, level, R);
 
     if (currentToken() == DELIMITER_LEFT_SQUARE_BRACKET) {
         node = consumeTerminal(node);
@@ -194,7 +195,7 @@ Node *Parser::parse_R(const int level) const {
 }
 
 Node *Parser::parse_stats(const int level) const {
-    Node *node = new Node("stats", NONTERMINAL, level);
+    Node *node = new Node("stats", NONTERMINAL_NODE, level, STATS);
 
     node = consumeNonTerminal(node, parse_stat(level + 1));
     node = consumeNonTerminal(node, parse_mStat(level + 1));
@@ -203,7 +204,7 @@ Node *Parser::parse_stats(const int level) const {
 }
 
 Node *Parser::parse_mStat(const int level) const {
-    Node *node = new Node("mStat", NONTERMINAL, level);
+    Node *node = new Node("mStat", NONTERMINAL_NODE, level, MSTAT);
 
     if (currentToken() == KEYWORD_INPUT || currentToken() == KEYWORD_OUTPUT || currentToken() == KEYWORD_BEGIN || currentToken() == KEYWORD_CHECK || currentToken() == KEYWORD_LOOP || currentToken() == IDENTIFIER) {
         node = consumeNonTerminal(node, parse_stat(level + 1));
@@ -216,7 +217,7 @@ Node *Parser::parse_mStat(const int level) const {
 }
 
 Node *Parser::parse_stat(const int level) const {
-    Node *node = new Node("stat", NONTERMINAL, level);
+    Node *node = new Node("stat", NONTERMINAL_NODE, level, STAT);
 
     if (currentToken() == KEYWORD_INPUT) {
         node = consumeNonTerminal(node, parse_in(level + 1));
@@ -248,7 +249,7 @@ Node *Parser::parse_stat(const int level) const {
 }
 
 Node *Parser::parse_in(const int level) const {
-    Node *node = new Node("in", NONTERMINAL, level);
+    Node *node = new Node("in", NONTERMINAL_NODE, level, IN);
 
     if (currentToken() == KEYWORD_INPUT) {
         node = consumeTerminal(node);
@@ -272,7 +273,7 @@ Node *Parser::parse_in(const int level) const {
 }
 
 Node *Parser::parse_out(const int level) const {
-    Node *node = new Node("out", NONTERMINAL, level);
+    Node *node = new Node("out", NONTERMINAL_NODE, level, OUT);
 
     if (currentToken() == KEYWORD_OUTPUT) {
         node = consumeTerminal(node);
@@ -292,7 +293,7 @@ Node *Parser::parse_out(const int level) const {
 }
 
 Node *Parser::parse_if(const int level) const {
-    Node *node = new Node("if", NONTERMINAL, level);
+    Node *node = new Node("if", NONTERMINAL_NODE, level, IF);
 
     if (currentToken() == KEYWORD_CHECK) {
         node = consumeTerminal(node);
@@ -322,7 +323,7 @@ Node *Parser::parse_if(const int level) const {
 }
 
 Node *Parser::parse_loop(const int level) const {
-    Node *node = new Node("loop", NONTERMINAL, level);
+    Node *node = new Node("loop", NONTERMINAL_NODE, level, LOOP);
 
     if (currentToken() == KEYWORD_LOOP) {
         node = consumeTerminal(node);
@@ -352,7 +353,7 @@ Node *Parser::parse_loop(const int level) const {
 }
 
 Node *Parser::parse_assign(const int level) const {
-    Node *node = new Node("assign", NONTERMINAL, level);
+    Node *node = new Node("assign", NONTERMINAL_NODE, level, ASSIGN);
 
     if (currentToken() == IDENTIFIER) {
         node = consumeTerminal(node);
@@ -378,7 +379,7 @@ Node *Parser::parse_assign(const int level) const {
 }
 
 Node *Parser::parse_RO(const int level) const {
-    Node *node = new Node("RO", NONTERMINAL, level);
+    Node *node = new Node("RO", NONTERMINAL_NODE, level, RO);
 
     if (currentToken() == OPERATOR_LESS_THAN) {
         node = consumeTerminal(node);
@@ -447,7 +448,7 @@ const TOKEN_IDENTIFIER Parser::currentToken() const {
 Node *Parser::consumeTerminal(Node *node) const {
     if (node->getLevel() != ROOT_LEVEL) {
         vector<Node *> children = node->getChildren();
-        children.push_back(new Node(token->getValue(), TERMINAL, node->getLevel() + 1));
+        children.push_back(new Node(token->getValue(), TERMINAL_NODE, node->getLevel() + 1, TERMINAL));
         node->setChildren(children);
     }
 

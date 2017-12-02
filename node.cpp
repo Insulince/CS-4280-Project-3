@@ -2,16 +2,13 @@
 
 using namespace std;
 
-Node::Node(const string value, const bool nonTerminal, const int level) : value(value),
-                                                                          nonTerminal(nonTerminal),
-                                                                          level(level) {
+Node::Node(const string value, const bool nonTerminal, const int level, const NONTERMINAL_IDENTIFIER nonTerminalIdentifier) : value(value),
+                                                                                                                              nonTerminal(nonTerminal),
+                                                                                                                              level(level),
+                                                                                                                              nonTerminalIdentifier(nonTerminalIdentifier) {
 }
 
 Node::~Node() = default;
-
-const int Node::getLevel() const {
-    return level;
-}
 
 const string &Node::getValue() const {
     return value;
@@ -19,6 +16,14 @@ const string &Node::getValue() const {
 
 const bool Node::isNonTerminal() const {
     return nonTerminal;
+}
+
+const int Node::getLevel() const {
+    return level;
+}
+
+const NONTERMINAL_IDENTIFIER Node::getNonTerminalIdentifier() const {
+    return nonTerminalIdentifier;
 }
 
 const vector<Node *> &Node::getChildren() const {
@@ -48,9 +53,9 @@ const string Node::toStringMe() const {
     }
 
     if (nonTerminal) {
-        output += "<" + value + ">\n";
+        output += "<" + value + "> " + to_string(nonTerminalIdentifier) + "\n";
     } else {
-        output += value + "\n";
+        output += value + " " + to_string(nonTerminalIdentifier) + "\n";
     }
 
     return output;
