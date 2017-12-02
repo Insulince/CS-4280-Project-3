@@ -11,6 +11,8 @@ CodeGenerator::~CodeGenerator() = default;
 const string CodeGenerator::generateCode() {
     string output = descend(parseTree);
     output += "STOP\n";
+    output += erectSegments();
+    output += "STOP\n";
     output += allocateStorage();
 
     return output;
@@ -256,7 +258,21 @@ const string CodeGenerator::descend(const Node *node) {
                 // Child 5: ]
                 // Child 6: <stat>
 
-                // TODO
+                output += descend(children.at(4));
+                const string tempIdentifier = generateTempIdentifier();
+                output += "STORE " + tempIdentifier + "\n";
+                output += descend(children.at(2));
+                output += "SUB " + tempIdentifier + "\n";
+
+                const string toLabel = generateTempLabel();
+                output += "BR " + toLabel + "\n";
+                const string fromLabel = generateTempLabel();
+                const string segment = toLabel + ": NOOP\n"
+                                       + descend(children.at(3)) + " " + fromLabel + "\n"
+                                       + descend(children.at(6))
+                                       + "BR " + fromLabel + "\n";
+                segments->push_back(segment);
+                output += fromLabel + ": NOOP\n";
             } else {
                 cerr << "Code Generation Error: Processing of \"IF\" node is unrecognized.\n";
             }
@@ -293,27 +309,30 @@ const string CodeGenerator::descend(const Node *node) {
             if (children.size() == 1 && children.at(0)->getValue() == "<") {
                 // Child 0: <
 
-                // TODO
+                output += "BRZPOS";
             } else if (children.size() == 1 && children.at(0)->getValue() == "<=") {
                 // Child 0: <=
 
-                // TODO
+                output += "BRPOS";
             } else if (children.size() == 1 && children.at(0)->getValue() == ">") {
                 // Child 0: >
 
-                // TODO
+                output += "BRZNEG";
             } else if (children.size() == 1 && children.at(0)->getValue() == ">=") {
                 // Child 0: >=
 
-                // TODO
+                output += "BRNEG";
             } else if (children.size() == 1 && children.at(0)->getValue() == "==") {
                 // Child 0: ==
 
-                // TODO
+                const string temp = generateTempIdentifier();
+                output += "STORE " + temp + "\n";
+                output += "MULT " + temp + "\n";
+                output += "BRPOS";
             } else if (children.size() == 1 && children.at(0)->getValue() == "!=") {
                 // Child 0: !=
 
-                // TODO
+                output += "BRZERO";
             } else {
                 cerr << "Code Generation Error: Processing of \"RO\" node is unrecognized.\n";
             }
@@ -332,7 +351,11 @@ const string CodeGenerator::descend(const Node *node) {
 }
 
 const string CodeGenerator::generateTempIdentifier() {
-    return "T" + to_string(temp++);
+    return "T" + to_string(++temp);
+}
+
+const string CodeGenerator::generateTempLabel() {
+    return "L" + to_string(++temp2);
 }
 
 std::string CodeGenerator::allocateStorage() {
@@ -342,8 +365,18 @@ std::string CodeGenerator::allocateStorage() {
         output += variable + " 0\n";
     }
 
-    for (int i = 0; i < temp; i++) {
+    for (int i = 0; i < temp + 1; i++) {
         output += "T" + to_string(i) + " 0\n";
+    }
+
+    return output;
+}
+
+std::string CodeGenerator::erectSegments() {
+    string output;
+
+    for (const string &segment : *segments) {
+        output += segment;
     }
 
     return output;
