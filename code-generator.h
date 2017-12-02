@@ -17,7 +17,7 @@ public:
 
     const std::string generateCode() const;
 
-    const std::string descend(const Node * node) const;
+    const std::string generateCodeOnSubTree(const Node *subTree) const;
 };
 
 

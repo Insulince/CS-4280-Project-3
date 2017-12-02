@@ -9,173 +9,175 @@ CodeGenerator::CodeGenerator(const Node *parseTree) : parseTree(parseTree) {
 CodeGenerator::~CodeGenerator() = default;
 
 const string CodeGenerator::generateCode() const {
-    return descend(parseTree);
+    return generateCodeOnSubTree(parseTree);
 }
 
-const string CodeGenerator::descend(const Node *node) const {
-//    cout << "Descending on node with Non Terminal Identifier value \"" << to_string(node->getNonTerminalIdentifier()) << "\" and value \"" << node->getValue() << "\".\n";
+const string CodeGenerator::generateCodeOnSubTree(const Node *subTree) const {
+    string generatedCode;
 
-    string output;
+    if (subTree->isNonTerminal()) {
+        const vector<Node *> &children = subTree->getChildren();
 
-    if (node->isNonTerminal()) {
-        if (node->getNonTerminalIdentifier() == PROGRAM) {
+        if (subTree->getNonTerminalIdentifier() == PROGRAM) {
             cout << "PROCESSING NONTERMINAL: PROGRAM\n";
-            if (node->getChildren().size() == 2) {
+            if (children.size() == 2) {
                 // Child 0: <vars>
                 // Child 1: <block>
             } else {
-                cout << "--- Code Generation Error: Processing of \"PROGRAM\" node is unrecognized.\n";
+                cerr << "Code Generation Error: Processing of \"PROGRAM\" node is unrecognized.\n";
             }
-        } else if (node->getNonTerminalIdentifier() == BLOCK) {
+        } else if (subTree->getNonTerminalIdentifier() == BLOCK) {
             cout << "PROCESSING NONTERMINAL: BLOCK\n";
-            if (node->getChildren().size() == 4) {
+            if (children.size() == 4) {
                 // Child 0: Begin
                 // Child 1: <vars>
                 // Child 2: <stats>
                 // Child 3: End
             } else {
-                cout << "--- Code Generation Error: Processing of \"BLOCK\" node is unrecognized.\n";
+                cerr << "Code Generation Error: Processing of \"BLOCK\" node is unrecognized.\n";
             }
-        } else if (node->getNonTerminalIdentifier() == VARS) {
+        } else if (subTree->getNonTerminalIdentifier() == VARS) {
             cout << "PROCESSING NONTERMINAL: VARS\n";
-            if (node->getChildren().empty()) {
+            if (children.empty()) {
                 // $empty
-            } else if (node->getChildren().size() == 3 && node->getChildren().at(0)->getValue() == "Var") {
+            } else if (children.size() == 3 && children.at(0)->getValue() == "Var") {
                 // Child 0: Var
                 // Child 1: $identifier
                 // Child 2: <mvars>
             } else {
-                cout << "--- Code Generation Error: Processing of \"VARS\" node is unrecognized.\n";
+                cerr << "Code Generation Error: Processing of \"VARS\" node is unrecognized.\n";
             }
-        } else if (node->getNonTerminalIdentifier() == MVARS) {
+        } else if (subTree->getNonTerminalIdentifier() == MVARS) {
             cout << "PROCESSING NONTERMINAL: MVARS\n";
-            if (node->getChildren().size() == 1 && node->getChildren().at(0)->getValue() == ".") {
+            if (children.size() == 1 && children.at(0)->getValue() == ".") {
                 // Child 0: .
-            } else if (node->getChildren().size() == 3 && node->getChildren().at(0)->getValue() == ",") {
+            } else if (children.size() == 3 && children.at(0)->getValue() == ",") {
                 // Child 0: ,
                 // Child 1: $identifier
                 // Child 2: <mvars>
             } else {
-                cout << "--- Code Generation Error: Processing of \"MVARS\" node is unrecognized.\n";
+                cerr << "Code Generation Error: Processing of \"MVARS\" node is unrecognized.\n";
             }
-        } else if (node->getNonTerminalIdentifier() == EXPR) {
+        } else if (subTree->getNonTerminalIdentifier() == EXPR) {
             cout << "PROCESSING NONTERMINAL: EXPR\n";
-            if (node->getChildren().size() == 3 && node->getChildren().at(1)->getValue() == "+") {
+            if (children.size() == 3 && children.at(1)->getValue() == "+") {
                 // Child 0: <M>
                 // Child 1: +
                 // Child 2: <expr>
-            } else if (node->getChildren().size() == 3 && node->getChildren().at(1)->getValue() == "-") {
+            } else if (children.size() == 3 && children.at(1)->getValue() == "-") {
                 // Child 0: <M>
                 // Child 1: -
                 // Child 2: <expr>
-            } else if (node->getChildren().size() == 1) {
+            } else if (children.size() == 1) {
                 // Child 0: <M>
+
+                generatedCode += generateCodeOnSubTree(children.at(0));
             } else {
-                cout << "--- Code Generation Error: Processing of \"EXPR\" node is unrecognized.\n";
+                cerr << "Code Generation Error: Processing of \"EXPR\" node is unrecognized.\n";
             }
-        } else if (node->getNonTerminalIdentifier() == M) {
+        } else if (subTree->getNonTerminalIdentifier() == M) {
             cout << "PROCESSING NONTERMINAL: M\n";
-            if (node->getChildren().size() == 3 && node->getChildren().at(1)->getValue() == "%") {
+            if (children.size() == 3 && children.at(1)->getValue() == "%") {
                 // Child 0: <F>
                 // Child 1: %
                 // Child 2: <M>
-            } else if (node->getChildren().size() == 3 && node->getChildren().at(1)->getValue() == "*") {
+            } else if (children.size() == 3 && children.at(1)->getValue() == "*") {
                 // Child 0: <F>
                 // Child 1: *
                 // Child 2: <M>
-            } else if (node->getChildren().size() == 1) {
+            } else if (children.size() == 1) {
                 // Child 0: <F>
             } else {
-                cout << "--- Code Generation Error: Processing of \"M\" node is unrecognized.\n";
+                cerr << "Code Generation Error: Processing of \"M\" node is unrecognized.\n";
             }
-        } else if (node->getNonTerminalIdentifier() == F) {
+        } else if (subTree->getNonTerminalIdentifier() == F) {
             cout << "PROCESSING NONTERMINAL: F\n";
-            if (node->getChildren().size() == 3 && node->getChildren().at(0)->getValue() == "(") {
+            if (children.size() == 3 && children.at(0)->getValue() == "(") {
                 // Child 0: (
                 // Child 1: <F>
                 // Child 2: )
-            } else if (node->getChildren().size() == 1) {
+            } else if (children.size() == 1) {
                 // Child 0: <R>
             } else {
-                cout << "--- Code Generation Error: Processing of \"F\" node is unrecognized.\n";
+                cerr << "Code Generation Error: Processing of \"F\" node is unrecognized.\n";
             }
-        } else if (node->getNonTerminalIdentifier() == R) {
+        } else if (subTree->getNonTerminalIdentifier() == R) {
             cout << "PROCESSING NONTERMINAL: R\n";
-            if (node->getChildren().size() == 3 && node->getChildren().at(0)->getValue() == "[") {
+            if (children.size() == 3 && children.at(0)->getValue() == "[") {
                 // Child 0: [
                 // Child 1: <expr>
                 // Child 2: ]
 
-                output += descend(node->getChildren().at(1)) + "\n";
-            } else if (node->getChildren().size() == 1 && isalpha(node->getChildren().at(0)->getValue()[0])) {
+                generatedCode += generateCodeOnSubTree(children.at(1));
+            } else if (children.size() == 1 && isalpha(children.at(0)->getValue()[0])) {
                 // Child 0: $identifier
 
-                output += "LOAD " + node->getChildren().at(0)->getValue() + "\n";
-            } else if (node->getChildren().size() == 1 && isdigit(node->getChildren().at(0)->getValue()[0])) {
+                generatedCode += "LOAD " + children.at(0)->getValue() + "\n";
+            } else if (children.size() == 1 && isdigit(children.at(0)->getValue()[0])) {
                 // Child 0: $number
 
-                output += "LOAD " + node->getChildren().at(0)->getValue() + "\n";
+                generatedCode += "LOAD " + children.at(0)->getValue() + "\n";
             } else {
-                cout << "--- Code Generation Error: Processing of \"R\" node is unrecognized.\n";
+                cerr << "Code Generation Error: Processing of \"R\" node is unrecognized.\n";
             }
-        } else if (node->getNonTerminalIdentifier() == STATS) {
+        } else if (subTree->getNonTerminalIdentifier() == STATS) {
             cout << "PROCESSING NONTERMINAL: STATS\n";
-            if (node->getChildren().size() == 2) {
+            if (children.size() == 2) {
                 // Child 0: <stat>
                 // Child 1: <mStat>
             } else {
-                cout << "--- Code Generation Error: Processing of \"STATS\" node is unrecognized.\n";
+                cerr << "Code Generation Error: Processing of \"STATS\" node is unrecognized.\n";
             }
-        } else if (node->getNonTerminalIdentifier() == MSTAT) {
+        } else if (subTree->getNonTerminalIdentifier() == MSTAT) {
             cout << "PROCESSING NONTERMINAL: MSTAT\n";
-            if (node->getChildren().empty()) {
+            if (children.empty()) {
                 // $empty
-            } else if (node->getChildren().size() == 2 && node->getChildren().at(0)->getValue() == "stat") {
+            } else if (children.size() == 2 && children.at(0)->getValue() == "stat") {
                 // Child 0: <stat>
                 // Child 1: <mStat>
             } else {
-                cout << "--- Code Generation Error: Processing of \"MSTAT\" node is unrecognized.\n";
+                cerr << "Code Generation Error: Processing of \"MSTAT\" node is unrecognized.\n";
             }
-        } else if (node->getNonTerminalIdentifier() == STAT) {
+        } else if (subTree->getNonTerminalIdentifier() == STAT) {
             cout << "PROCESSING NONTERMINAL: STAT\n";
-            if (node->getChildren().size() == 1 && node->getChildren().at(0)->getValue() == "in") {
+            if (children.size() == 1 && children.at(0)->getValue() == "in") {
                 // Child 0: <in>
-            } else if (node->getChildren().size() == 1 && node->getChildren().at(0)->getValue() == "out") {
+            } else if (children.size() == 1 && children.at(0)->getValue() == "out") {
                 // Child 0: <out>
-            } else if (node->getChildren().size() == 1 && node->getChildren().at(0)->getValue() == "block") {
+            } else if (children.size() == 1 && children.at(0)->getValue() == "block") {
                 // Child 0: <block>
-            } else if (node->getChildren().size() == 1 && node->getChildren().at(0)->getValue() == "if") {
+            } else if (children.size() == 1 && children.at(0)->getValue() == "if") {
                 // Child 0: <if>
-            } else if (node->getChildren().size() == 1 && node->getChildren().at(0)->getValue() == "loop") {
+            } else if (children.size() == 1 && children.at(0)->getValue() == "loop") {
                 // Child 0: <loop>
-            } else if (node->getChildren().size() == 1 && node->getChildren().at(0)->getValue() == "assign") {
+            } else if (children.size() == 1 && children.at(0)->getValue() == "assign") {
                 // Child 0: <assign>
             } else {
-                cout << "--- Code Generation Error: Processing of \"STAT\" node is unrecognized.\n";
+                cerr << "Code Generation Error: Processing of \"STAT\" node is unrecognized.\n";
             }
-        } else if (node->getNonTerminalIdentifier() == IN) {
+        } else if (subTree->getNonTerminalIdentifier() == IN) {
             cout << "PROCESSING NONTERMINAL: IN\n";
-            if (node->getChildren().size() == 3) {
+            if (children.size() == 3) {
                 // Child 0: Input
                 // Child 1: $identifier
                 // Child 2: ;
 
-                output += "READ " + node->getChildren().at(1)->getValue() + "\n";
+                generatedCode += "READ " + children.at(1)->getValue() + "\n";
             } else {
-                cout << "--- Code Generation Error: Processing of \"IN\" node is unrecognized.\n";
+                cerr << "Code Generation Error: Processing of \"IN\" node is unrecognized.\n";
             }
-        } else if (node->getNonTerminalIdentifier() == OUT) {
+        } else if (subTree->getNonTerminalIdentifier() == OUT) {
             cout << "PROCESSING NONTERMINAL: OUT\n";
-            if (node->getChildren().size() == 3) {
+            if (children.size() == 3) {
                 // Child 0: Output
                 // Child 1: <expr>
                 // Child 2: ;
             } else {
-                cout << "--- Code Generation Error: Processing of \"OUT\" node is unrecognized.\n";
+                cerr << "Code Generation Error: Processing of \"OUT\" node is unrecognized.\n";
             }
-        } else if (node->getNonTerminalIdentifier() == IF) {
+        } else if (subTree->getNonTerminalIdentifier() == IF) {
             cout << "PROCESSING NONTERMINAL: IF\n";
-            if (node->getChildren().size() == 7) {
+            if (children.size() == 7) {
                 // Child 0: Check
                 // Child 1: [
                 // Child 2: <expr>
@@ -184,11 +186,11 @@ const string CodeGenerator::descend(const Node *node) const {
                 // Child 5: ]
                 // Child 6: <stat>
             } else {
-                cout << "--- Code Generation Error: Processing of \"IF\" node is unrecognized.\n";
+                cerr << "Code Generation Error: Processing of \"IF\" node is unrecognized.\n";
             }
-        } else if (node->getNonTerminalIdentifier() == LOOP) {
+        } else if (subTree->getNonTerminalIdentifier() == LOOP) {
             cout << "PROCESSING NONTERMINAL: LOOP\n";
-            if (node->getChildren().size() == 7) {
+            if (children.size() == 7) {
                 // Child 0: Loop
                 // Child 1: [
                 // Child 2: <expr>
@@ -197,48 +199,48 @@ const string CodeGenerator::descend(const Node *node) const {
                 // Child 5: ]
                 // Child 6: <stat>
             } else {
-                cout << "--- Code Generation Error: Processing of \"LOOP\" node is unrecognized.\n";
+                cerr << "Code Generation Error: Processing of \"LOOP\" node is unrecognized.\n";
             }
-        } else if (node->getNonTerminalIdentifier() == ASSIGN) {
+        } else if (subTree->getNonTerminalIdentifier() == ASSIGN) {
             cout << "PROCESSING NONTERMINAL: ASSIGN\n";
-            if (node->getChildren().size() == 4) {
+            if (children.size() == 4) {
                 // Child 0: $identifier
                 // Child 1: :
                 // Child 2: <expr>
                 // Child 3: ;
 
-                output += descend(node->getChildren().at(2)) + "\n";
-                output += "STORE " + node->getChildren().at(0)->getValue() + "\n";
+                generatedCode += generateCodeOnSubTree(children.at(2));
+                generatedCode += "STORE " + children.at(0)->getValue() + "\n";
             } else {
-                cout << "--- Code Generation Error: Processing of \"ASSIGN\" node is unrecognized.\n";
+                cerr << "Code Generation Error: Processing of \"ASSIGN\" node is unrecognized.\n";
             }
-        } else if (node->getNonTerminalIdentifier() == RO) {
+        } else if (subTree->getNonTerminalIdentifier() == RO) {
             cout << "PROCESSING NONTERMINAL: RO\n";
-            if (node->getChildren().size() == 1 && node->getChildren().at(0)->getValue() == "<") {
+            if (children.size() == 1 && children.at(0)->getValue() == "<") {
                 // Child 0: <
-            } else if (node->getChildren().size() == 1 && node->getChildren().at(0)->getValue() == "<=") {
+            } else if (children.size() == 1 && children.at(0)->getValue() == "<=") {
                 // Child 0: <=
-            } else if (node->getChildren().size() == 1 && node->getChildren().at(0)->getValue() == ">") {
+            } else if (children.size() == 1 && children.at(0)->getValue() == ">") {
                 // Child 0: >
-            } else if (node->getChildren().size() == 1 && node->getChildren().at(0)->getValue() == ">=") {
+            } else if (children.size() == 1 && children.at(0)->getValue() == ">=") {
                 // Child 0: >=
-            } else if (node->getChildren().size() == 1 && node->getChildren().at(0)->getValue() == "==") {
+            } else if (children.size() == 1 && children.at(0)->getValue() == "==") {
                 // Child 0: ==
-            } else if (node->getChildren().size() == 1 && node->getChildren().at(0)->getValue() == "!=") {
+            } else if (children.size() == 1 && children.at(0)->getValue() == "!=") {
                 // Child 0: !=
             } else {
-                cout << "--- Code Generation Error: Processing of \"RO\" node is unrecognized.\n";
+                cerr << "Code Generation Error: Processing of \"RO\" node is unrecognized.\n";
             }
-        } else if (node->getNonTerminalIdentifier() == TERMINAL) {
+        } else if (subTree->getNonTerminalIdentifier() == TERMINAL) {
             cout << "PROCESSING NONTERMINAL: TERMINAL\n";
             // This should not be possible to reach, but is included for consistency anyway.
-            cout << "--- Code Generation Error: Processing of non-terminal node is marked as terminal.\n";
+            cerr << "Code Generation Error: Processing of non-terminal node is marked as terminal.\n";
         } else {
-            cout << "--- Code Generation Error: Processing of non-terminal node is unrecognized. Marked as value \"" + to_string(node->getNonTerminalIdentifier()) + "\"\n";
+            cerr << "Code Generation Error: Processing of non-terminal node is unrecognized. Marked as value \"" + to_string(subTree->getNonTerminalIdentifier()) + "\"\n";
         }
     } else {
-        cout << "PROCESSING TERMINAL:    \"" + node->getValue() + "\"\n";
+        cout << "PROCESSING TERMINAL:    \"" + subTree->getValue() + "\"\n";
     }
 
-    return output;
+    return generatedCode;
 }
