@@ -23,6 +23,8 @@ const string CodeGenerator::generateCodeOnSubTree(const Node *subTree) const {
             if (children.size() == 2) {
                 // Child 0: <vars>
                 // Child 1: <block>
+
+
             } else {
                 cerr << "Code Generation Error: Processing of \"PROGRAM\" node is unrecognized.\n";
             }
@@ -33,6 +35,8 @@ const string CodeGenerator::generateCodeOnSubTree(const Node *subTree) const {
                 // Child 1: <vars>
                 // Child 2: <stats>
                 // Child 3: End
+
+
             } else {
                 cerr << "Code Generation Error: Processing of \"BLOCK\" node is unrecognized.\n";
             }
@@ -44,6 +48,8 @@ const string CodeGenerator::generateCodeOnSubTree(const Node *subTree) const {
                 // Child 0: Var
                 // Child 1: $identifier
                 // Child 2: <mvars>
+
+
             } else {
                 cerr << "Code Generation Error: Processing of \"VARS\" node is unrecognized.\n";
             }
@@ -51,10 +57,14 @@ const string CodeGenerator::generateCodeOnSubTree(const Node *subTree) const {
             cout << "PROCESSING NONTERMINAL: MVARS\n";
             if (children.size() == 1 && children.at(0)->getValue() == ".") {
                 // Child 0: .
+
+
             } else if (children.size() == 3 && children.at(0)->getValue() == ",") {
                 // Child 0: ,
                 // Child 1: $identifier
                 // Child 2: <mvars>
+
+
             } else {
                 cerr << "Code Generation Error: Processing of \"MVARS\" node is unrecognized.\n";
             }
@@ -64,10 +74,14 @@ const string CodeGenerator::generateCodeOnSubTree(const Node *subTree) const {
                 // Child 0: <M>
                 // Child 1: +
                 // Child 2: <expr>
+
+
             } else if (children.size() == 3 && children.at(1)->getValue() == "-") {
                 // Child 0: <M>
                 // Child 1: -
                 // Child 2: <expr>
+
+
             } else if (children.size() == 1) {
                 // Child 0: <M>
 
@@ -81,12 +95,18 @@ const string CodeGenerator::generateCodeOnSubTree(const Node *subTree) const {
                 // Child 0: <F>
                 // Child 1: %
                 // Child 2: <M>
+
+
             } else if (children.size() == 3 && children.at(1)->getValue() == "*") {
                 // Child 0: <F>
                 // Child 1: *
                 // Child 2: <M>
+
+
             } else if (children.size() == 1) {
                 // Child 0: <F>
+
+
             } else {
                 cerr << "Code Generation Error: Processing of \"M\" node is unrecognized.\n";
             }
@@ -96,8 +116,12 @@ const string CodeGenerator::generateCodeOnSubTree(const Node *subTree) const {
                 // Child 0: (
                 // Child 1: <F>
                 // Child 2: )
+
+
             } else if (children.size() == 1) {
                 // Child 0: <R>
+
+
             } else {
                 cerr << "Code Generation Error: Processing of \"F\" node is unrecognized.\n";
             }
@@ -125,6 +149,8 @@ const string CodeGenerator::generateCodeOnSubTree(const Node *subTree) const {
             if (children.size() == 2) {
                 // Child 0: <stat>
                 // Child 1: <mStat>
+
+
             } else {
                 cerr << "Code Generation Error: Processing of \"STATS\" node is unrecognized.\n";
             }
@@ -135,6 +161,8 @@ const string CodeGenerator::generateCodeOnSubTree(const Node *subTree) const {
             } else if (children.size() == 2 && children.at(0)->getValue() == "stat") {
                 // Child 0: <stat>
                 // Child 1: <mStat>
+
+
             } else {
                 cerr << "Code Generation Error: Processing of \"MSTAT\" node is unrecognized.\n";
             }
@@ -142,16 +170,28 @@ const string CodeGenerator::generateCodeOnSubTree(const Node *subTree) const {
             cout << "PROCESSING NONTERMINAL: STAT\n";
             if (children.size() == 1 && children.at(0)->getValue() == "in") {
                 // Child 0: <in>
+
+
             } else if (children.size() == 1 && children.at(0)->getValue() == "out") {
                 // Child 0: <out>
+
+
             } else if (children.size() == 1 && children.at(0)->getValue() == "block") {
                 // Child 0: <block>
+
+
             } else if (children.size() == 1 && children.at(0)->getValue() == "if") {
                 // Child 0: <if>
+
+
             } else if (children.size() == 1 && children.at(0)->getValue() == "loop") {
                 // Child 0: <loop>
+
+
             } else if (children.size() == 1 && children.at(0)->getValue() == "assign") {
                 // Child 0: <assign>
+
+
             } else {
                 cerr << "Code Generation Error: Processing of \"STAT\" node is unrecognized.\n";
             }
@@ -172,6 +212,8 @@ const string CodeGenerator::generateCodeOnSubTree(const Node *subTree) const {
                 // Child 0: Output
                 // Child 1: <expr>
                 // Child 2: ;
+
+
             } else {
                 cerr << "Code Generation Error: Processing of \"OUT\" node is unrecognized.\n";
             }
@@ -185,6 +227,8 @@ const string CodeGenerator::generateCodeOnSubTree(const Node *subTree) const {
                 // Child 4: <expr>
                 // Child 5: ]
                 // Child 6: <stat>
+
+
             } else {
                 cerr << "Code Generation Error: Processing of \"IF\" node is unrecognized.\n";
             }
@@ -198,6 +242,8 @@ const string CodeGenerator::generateCodeOnSubTree(const Node *subTree) const {
                 // Child 4: <expr>
                 // Child 5: ]
                 // Child 6: <stat>
+
+
             } else {
                 cerr << "Code Generation Error: Processing of \"LOOP\" node is unrecognized.\n";
             }
@@ -218,16 +264,28 @@ const string CodeGenerator::generateCodeOnSubTree(const Node *subTree) const {
             cout << "PROCESSING NONTERMINAL: RO\n";
             if (children.size() == 1 && children.at(0)->getValue() == "<") {
                 // Child 0: <
+
+
             } else if (children.size() == 1 && children.at(0)->getValue() == "<=") {
                 // Child 0: <=
+
+
             } else if (children.size() == 1 && children.at(0)->getValue() == ">") {
                 // Child 0: >
+
+
             } else if (children.size() == 1 && children.at(0)->getValue() == ">=") {
                 // Child 0: >=
+
+
             } else if (children.size() == 1 && children.at(0)->getValue() == "==") {
                 // Child 0: ==
+
+
             } else if (children.size() == 1 && children.at(0)->getValue() == "!=") {
                 // Child 0: !=
+
+
             } else {
                 cerr << "Code Generation Error: Processing of \"RO\" node is unrecognized.\n";
             }
