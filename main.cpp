@@ -122,6 +122,13 @@ const void processData(const string &rawData, const string &fileName) {
     Node *parseTree = parser->parse();
     cout << parseTree->toString();
 
+    cout << "\n=====================================================\n\n";
+
     CodeGenerator *codeGenerator = new CodeGenerator(parseTree);
-    cout << "\n" << codeGenerator->generateCode();
+    string output = codeGenerator->generateCode();
+
+    cout << "\n=====================================================\n";
+
+    cout << output;
+
 }

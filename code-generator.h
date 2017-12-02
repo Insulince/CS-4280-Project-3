@@ -8,16 +8,21 @@
 class CodeGenerator {
 private:
     const Node *parseTree;
-
+    std::vector<std::string> *variables = new std::vector<std::string>();
     Scope *currentScope = new Scope();
+    int temp = 0;
 public:
     explicit CodeGenerator(const Node *parseTree);
 
     ~CodeGenerator();
 
-    const std::string generateCode() const;
+    const std::string generateCode();
 
-    const std::string generateCodeOnSubTree(const Node *subTree) const;
+    const std::string descend(const Node *node);
+
+    const std::string generateTempIdentifier();
+
+    std::string allocateStorage();
 };
 
 
