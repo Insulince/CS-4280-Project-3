@@ -22,15 +22,15 @@ public:
 
     const std::string descend(const Node *node);
 
-    const std::string generateTempIdentifier();
+    const std::string allocateStorage() const;
 
-    std::string allocateStorage();
+    const std::string erectSegments() const;
+
+    const std::string generateTempIdentifier();
 
     const std::string generateTempLabel();
 
-    const std::string getTempLabel();
-
-    std::string erectSegments();
+    const std::string logicallyInvert(const std::string &condition);
 };
 
 

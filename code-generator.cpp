@@ -287,7 +287,26 @@ const string CodeGenerator::descend(const Node *node) {
                 // Child 5: ]
                 // Child 6: <stat>
 
-                // TODO
+                output += descend(children.at(4));
+                const string tempIdentifier = generateTempIdentifier();
+                output += "STORE " + tempIdentifier + "\n";
+                output += descend(children.at(2));
+                output += "SUB " + tempIdentifier + "\n";
+
+                const string toLabel = generateTempLabel();
+                output += "BR " + toLabel + "\n";
+                const string fromLabel = generateTempLabel();
+                const string tempSegmentIdentifier = generateTempIdentifier();
+                const string segment = toLabel + ": NOOP\n"
+                                       + logicallyInvert(descend(children.at(3))) + " " + fromLabel + "\n"
+                                       + descend(children.at(6))
+                                       + descend(children.at(4))
+                                       + "STORE " + tempSegmentIdentifier + "\n"
+                                       + descend(children.at(2))
+                                       + "SUB " + tempSegmentIdentifier + "\n"
+                                       + "BR " + toLabel + "\n";
+                segments->push_back(segment);
+                output += fromLabel + ": NOOP\n";
             } else {
                 cerr << "Code Generation Error: Processing of \"LOOP\" node is unrecognized.\n";
             }
@@ -358,7 +377,7 @@ const string CodeGenerator::generateTempLabel() {
     return "L" + to_string(++temp2);
 }
 
-std::string CodeGenerator::allocateStorage() {
+const string CodeGenerator::allocateStorage() const {
     string output;
 
     for (const string &variable : *variables) {
@@ -372,7 +391,7 @@ std::string CodeGenerator::allocateStorage() {
     return output;
 }
 
-std::string CodeGenerator::erectSegments() {
+const string CodeGenerator::erectSegments() const {
     string output;
 
     for (const string &segment : *segments) {
@@ -380,4 +399,26 @@ std::string CodeGenerator::erectSegments() {
     }
 
     return output;
+}
+
+const string CodeGenerator::logicallyInvert(const string &condition) {
+    return condition;
+//    if (condition == "BRZPOS") {
+//        return "BRNEG";
+//    } else if (condition == "BRPOS") {
+//        return "BRZNEG";
+//    } else if (condition == "BRZNEG") {
+//        return "BRPOS";
+//    } else if (condition == "BRNEG") {
+//        return "BRZPOS";
+//    } else if (condition == "BRZERO") {
+//        const string temp = generateTempIdentifier();
+//        string output = "STORE " + temp + "\n";
+//        output += "MULT " + temp + "\n";
+//        output += "BRPOS";;
+//
+//        return output;
+//    } else {
+//        return "BRZERO";
+//    }
 }
