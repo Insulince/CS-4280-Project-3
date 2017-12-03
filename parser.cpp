@@ -71,7 +71,6 @@ Node *Parser::parse_vars(const int level) const {
             reportError(IDENTIFIER, VA_LIST_TERMINATOR);
         }
     } else {
-        cout << "Empty vars node added\n";
         return node;
     }
 }

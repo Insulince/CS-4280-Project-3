@@ -24,7 +24,6 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
         const vector<Node *> &childNodes = node->getChildren();
 
         if (node->getNonTerminalIdentifier() == PROGRAM) {
-            cout << "PROCESSING NONTERMINAL: PROGRAM\n";
             if (childNodes.size() == 2) {
                 // Child 0: <vars>
                 // Child 1: <block>
@@ -32,10 +31,9 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 generatedCode += generateCodeForNode(childNodes.at(0));
                 generatedCode += generateCodeForNode(childNodes.at(1));
             } else {
-                cerr << "Code Generation Error: No grammar path was recognized during processing of \"PROGRAM\" node.\n";
+                cerr << "Code Generator Error: No grammar path was recognized during processing of \"PROGRAM\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == BLOCK) {
-            cout << "PROCESSING NONTERMINAL: BLOCK\n";
             if (childNodes.size() == 4) {
                 // Child 0: Begin
                 // Child 1: <vars>
@@ -45,10 +43,9 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 generatedCode += generateCodeForNode(childNodes.at(1));
                 generatedCode += generateCodeForNode(childNodes.at(2));
             } else {
-                cerr << "Code Generation Error: No grammar path was recognized during processing of \"BLOCK\" node.\n";
+                cerr << "Code Generator Error: No grammar path was recognized during processing of \"BLOCK\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == VARS) {
-            cout << "PROCESSING NONTERMINAL: VARS\n";
             if (childNodes.empty()) {
                 // $empty
             } else if (childNodes.size() == 3 && childNodes.at(0)->getValue() == "Var") {
@@ -59,10 +56,9 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 variables->push_back(childNodes.at(1)->getValue());
                 generatedCode += generateCodeForNode(childNodes.at(2));
             } else {
-                cerr << "Code Generation Error: No grammar path was recognized during processing of \"VARS\" node.\n";
+                cerr << "Code Generator Error: No grammar path was recognized during processing of \"VARS\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == MVARS) {
-            cout << "PROCESSING NONTERMINAL: MVARS\n";
             if (childNodes.size() == 1 && childNodes.at(0)->getValue() == ".") {
                 // Child 0: .
             } else if (childNodes.size() == 3 && childNodes.at(0)->getValue() == ",") {
@@ -73,10 +69,9 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 variables->push_back(childNodes.at(1)->getValue());
                 generatedCode += generateCodeForNode(childNodes.at(2));
             } else {
-                cerr << "Code Generation Error: No grammar path was recognized during processing of \"MVARS\" node.\n";
+                cerr << "Code Generator Error: No grammar path was recognized during processing of \"MVARS\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == EXPR) {
-            cout << "PROCESSING NONTERMINAL: EXPR\n";
             if (childNodes.size() == 3 && childNodes.at(1)->getValue() == "+") {
                 // Child 0: <M>
                 // Child 1: +
@@ -102,10 +97,9 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
 
                 generatedCode += generateCodeForNode(childNodes.at(0));
             } else {
-                cerr << "Code Generation Error: No grammar path was recognized during processing of \"EXPR\" node.\n";
+                cerr << "Code Generator Error: No grammar path was recognized during processing of \"EXPR\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == M) {
-            cout << "PROCESSING NONTERMINAL: M\n";
             if (childNodes.size() == 3 && childNodes.at(1)->getValue() == "%") {
                 // Child 0: <F>
                 // Child 1: %
@@ -131,10 +125,9 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
 
                 generatedCode += generateCodeForNode(childNodes.at(0));
             } else {
-                cerr << "Code Generation Error: No grammar path was recognized during processing of \"M\" node.\n";
+                cerr << "Code Generator Error: No grammar path was recognized during processing of \"M\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == F) {
-            cout << "PROCESSING NONTERMINAL: F\n";
             if (childNodes.size() == 3 && childNodes.at(0)->getValue() == "(") {
                 // Child 0: (
                 // Child 1: <F>
@@ -147,10 +140,9 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
 
                 generatedCode += generateCodeForNode(childNodes.at(0));
             } else {
-                cerr << "Code Generation Error: No grammar path was recognized during processing of \"F\" node.\n";
+                cerr << "Code Generator Error: No grammar path was recognized during processing of \"F\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == R) {
-            cout << "PROCESSING NONTERMINAL: R\n";
             if (childNodes.size() == 3 && childNodes.at(0)->getValue() == "[") {
                 // Child 0: [
                 // Child 1: <expr>
@@ -166,10 +158,9 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
 
                 generatedCode += CMD_LOAD + SPACE + childNodes.at(0)->getValue() + NEW_LINE;
             } else {
-                cerr << "Code Generation Error: No grammar path was recognized during processing of \"R\" node.\n";
+                cerr << "Code Generator Error: No grammar path was recognized during processing of \"R\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == STATS) {
-            cout << "PROCESSING NONTERMINAL: STATS\n";
             if (childNodes.size() == 2) {
                 // Child 0: <stat>
                 // Child 1: <mStat>
@@ -177,10 +168,9 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 generatedCode += generateCodeForNode(childNodes.at(0));
                 generatedCode += generateCodeForNode(childNodes.at(1));
             } else {
-                cerr << "Code Generation Error: No grammar path was recognized during processing of \"STATS\" node.\n";
+                cerr << "Code Generator Error: No grammar path was recognized during processing of \"STATS\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == MSTAT) {
-            cout << "PROCESSING NONTERMINAL: MSTAT\n";
             if (childNodes.empty()) {
                 // $empty
             } else if (childNodes.size() == 2 && childNodes.at(0)->getValue() == "stat") {
@@ -190,10 +180,9 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 generatedCode += generateCodeForNode(childNodes.at(0));
                 generatedCode += generateCodeForNode(childNodes.at(1));
             } else {
-                cerr << "Code Generation Error: No grammar path was recognized during processing of \"MSTAT\" node.\n";
+                cerr << "Code Generator Error: No grammar path was recognized during processing of \"MSTAT\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == STAT) {
-            cout << "PROCESSING NONTERMINAL: STAT\n";
             if (childNodes.size() == 1 && childNodes.at(0)->getValue() == "in") {
                 // Child 0: <in>
 
@@ -219,10 +208,9 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
 
                 generatedCode += generateCodeForNode(childNodes.at(0));
             } else {
-                cerr << "Code Generation Error: No grammar path was recognized during processing of \"STAT\" node.\n";
+                cerr << "Code Generator Error: No grammar path was recognized during processing of \"STAT\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == IN) {
-            cout << "PROCESSING NONTERMINAL: IN\n";
             if (childNodes.size() == 3) {
                 // Child 0: Input
                 // Child 1: $identifier
@@ -230,10 +218,9 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
 
                 generatedCode += CMD_READ + SPACE + childNodes.at(1)->getValue() + NEW_LINE;
             } else {
-                cerr << "Code Generation Error: No grammar path was recognized during processing of \"IN\" node.\n";
+                cerr << "Code Generator Error: No grammar path was recognized during processing of \"IN\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == OUT) {
-            cout << "PROCESSING NONTERMINAL: OUT\n";
             if (childNodes.size() == 3) {
                 // Child 0: Output
                 // Child 1: <expr>
@@ -244,10 +231,9 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 generatedCode += CMD_STORE + SPACE + tempIdentifier + NEW_LINE;
                 generatedCode += CMD_WRITE + SPACE + tempIdentifier + NEW_LINE;
             } else {
-                cerr << "Code Generation Error: No grammar path was recognized during processing of \"OUT\" node.\n";
+                cerr << "Code Generator Error: No grammar path was recognized during processing of \"OUT\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == IF) {
-            cout << "PROCESSING NONTERMINAL: IF\n";
             if (childNodes.size() == 7) {
                 // Child 0: Check
                 // Child 1: [
@@ -273,10 +259,9 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 generatedCode += CMD_STOP + NEW_LINE;
                 generatedCode += fromLabel + COLON + SPACE + CMD_NOOP + NEW_LINE;
             } else {
-                cerr << "Code Generation Error: No grammar path was recognized during processing of \"IF\" node.\n";
+                cerr << "Code Generator Error: No grammar path was recognized during processing of \"IF\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == LOOP) {
-            cout << "PROCESSING NONTERMINAL: LOOP\n";
             if (childNodes.size() == 7) {
                 // Child 0: Loop
                 // Child 1: [
@@ -302,10 +287,9 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 generatedCode += CMD_STOP + NEW_LINE;
                 generatedCode += fromLabel + COLON + SPACE + CMD_NOOP + NEW_LINE;
             } else {
-                cerr << "Code Generation Error: No grammar path was recognized during processing of \"LOOP\" node.\n";
+                cerr << "Code Generator Error: No grammar path was recognized during processing of \"LOOP\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == ASSIGN) {
-            cout << "PROCESSING NONTERMINAL: ASSIGN\n";
             if (childNodes.size() == 4) {
                 // Child 0: $identifier
                 // Child 1: :
@@ -315,10 +299,9 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 generatedCode += generateCodeForNode(childNodes.at(2));
                 generatedCode += CMD_STORE + SPACE + childNodes.at(0)->getValue() + NEW_LINE;
             } else {
-                cerr << "Code Generation Error: No grammar path was recognized during processing of \"ASSIGN\" node.\n";
+                cerr << "Code Generator Error: No grammar path was recognized during processing of \"ASSIGN\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == RO) {
-            cout << "PROCESSING NONTERMINAL: RO\n";
             if (childNodes.size() == 1 && childNodes.at(0)->getValue() == "<") {
                 // Child 0: <
 
@@ -347,17 +330,14 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
 
                 generatedCode += CMD_BRZERO;
             } else {
-                cerr << "Code Generation Error: No grammar path was recognized during processing of \"RO\" node.\n";
+                cerr << "Code Generator Error: No grammar path was recognized during processing of \"RO\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == TERMINAL) {
-            cout << "PROCESSING NONTERMINAL: TERMINAL\n";
             // This should not be possible to reach, but is included for consistency anyway.
-            cerr << "Code Generation Error: Processing of non-terminal node is marked as terminal.\n";
+            cerr << "Code Generator Error: Processing of non-terminal node is marked as terminal.\n";
         } else {
-            cerr << "Code Generation Error: Processing of non-terminal node is unrecognized. Marked as value \"" + to_string(node->getNonTerminalIdentifier()) + "\NEW_LINE;
+            cerr << "Code Generator Error: Processing of non-terminal node is unrecognized. Marked as value \"" + to_string(node->getNonTerminalIdentifier()) + "\n";
         }
-    } else {
-        cout << "PROCESSING TERMINAL:    \"" + node->getValue() + "\n";
     }
 
     return generatedCode;

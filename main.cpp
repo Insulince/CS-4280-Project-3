@@ -120,15 +120,9 @@ const string getRawInputFileData(const string &inputFileName) {
 const void processData(const string &rawData, const string &fileName) {
     Parser *parser = new Parser(rawData);
     Node *parseTree = parser->parse();
-    cout << parseTree->toString();
-
-    cout << "\n=====================================================\n\n";
-
     CodeGenerator *codeGenerator = new CodeGenerator(parseTree);
     string output = codeGenerator->generateCode();
 
-    cout << "\n=====================================================\n";
-
-    cout << output;
+    cout << endl << output << endl;
 
 }

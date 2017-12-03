@@ -53,9 +53,9 @@ const string Node::toStringMe() const {
     }
 
     if (nonTerminal) {
-        output += "<" + value + "> " + to_string(nonTerminalIdentifier) + "\n";
+        output += "<" + value + ">" + "\n";
     } else {
-        output += value + " " + to_string(nonTerminalIdentifier) + "\n";
+        output += value + "\n";
     }
 
     return output;
