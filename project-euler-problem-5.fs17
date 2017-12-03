@@ -1,0 +1,44 @@
+# This is a solution to problem number 5 on the project euler website: https://projecteuler.net/problem=5
+The wording of the question as of 12/3/2017 is:
+    2520 is the smallest number that can be divided by each of the numbers from 1 to 10 without any remainder.
+    What is the smallest positive number that is evenly divisible by all of the numbers from 1 to 20?
+This program solves this problem, but do note it does a significant amount of calculations. When I run it on delmar it takes less than a second, but that is because I have optimized it, and I don't know if it will always run that quickly. #
+
+Var
+a, # This variable keeps track of whether we have found the solution or not. It is essentially a boolean. #
+b, # This counts down from 20 to 11, skipping 12 and 15 (the specifics of the problem make those numbers unneeded calculations) to test against the current number. #
+c, # This is the current number being evaluated for divisibility against all numbers 1-20. #
+d. # This is a flag used on each value of c. If it is set to 1 then we know that c is not the correct number. #
+Begin
+    c: 2520 + 2520; # Initialize c to 2520 + 2520. 2520 is the solution to the example they gave, the smallest multiple for 1 - 10. We know our answer won't be less than 2520, and it must be at least the next iteration, so start at 2520 and add another 2520 to it to begin. #
+
+    Loop [a != 1] Begin # While we have not found a solution... #
+        b: 20; # Initialize b to the uppermost value to check c against. #
+        d: 0; # Set the invalid flag (d) to 0 (false). #
+
+        Loop [b > 10] Begin  # While b is greater than 10... #
+            Check [[c % b] * b != c] Begin # This looks a little tricky, but its essentially "c % b == 0" in java (% being modulo, not division). It checks if the value achieved by dividing and re-multiplying is equivalent to the original value which would indicate that c is evenly divided by b. So, if c is not evenly divisible by b... #
+                d: 1; # This value of c is invalid. #
+                b: 0; # Set b to zero to exit the loop early to avoid unneeded calculations. #
+            End
+
+            b: b - 1; # Subtract one from b. #
+
+            Check [b == 15] Begin # If b is 15... #
+                b: b - 1; # Subtract one from b, because we don't check 15. #
+            End
+
+            Check [b == 12] Begin # If b is 12... #
+                b: b - 1; # Subtract one from b, because we don't check 12. #
+            End
+        End
+
+        Check [d == 0] Begin # If the invalid flag (d) is set to false (0)... #
+            a: 1; # This value of c is the correct value. #
+        End
+
+        c: c + 2520; # Increment c by the step size, which we know is 2520. #
+    End
+
+    Output c - 2520; # Output the final value of c, but subtract 2520 to undo the last increment of c in the loop. This is the solution. #
+End
