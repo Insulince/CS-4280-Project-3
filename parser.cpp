@@ -415,7 +415,7 @@ Node *Parser::parse() const {
     Node *root = parse_program(ROOT_LEVEL);
 
     if (currentToken() == END_OF_FILE) {
-        cout << "Parsing completed successfully.\n";
+        cout << "Parsing completed successfully.\n\n";
     } else {
         reportError(END_OF_FILE, -1);
     }

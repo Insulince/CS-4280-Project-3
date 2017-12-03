@@ -16,6 +16,7 @@ const static int EXIT_CODE_NO_SUCH_INPUT_FILE = 2;
 
 const static char *KEYBOARD_MODE_OUTPUT_FILE_NAME = "out";
 const static char *IMPLICIT_INPUT_FILE_EXTENSION = ".fs17";
+const static char *OUTPUT_FILE_EXTENSION = ".asm";
 
 const bool noArgumentsPassed(int quantityCommandLineArgumentsWithoutDefaultArgument);
 
@@ -29,7 +30,7 @@ const string getRawKeyboardData();
 
 const string getRawInputFileData(const string &inputFileName);
 
-const void processData(const string &rawData, const string &fileName);
+const void processData(const string &rawData, const string &outputFileName);
 
 const string trim(const string &toBeTrimmed);
 
@@ -117,12 +118,17 @@ const string getRawInputFileData(const string &inputFileName) {
     }
 }
 
-const void processData(const string &rawData, const string &fileName) {
-    Parser *parser = new Parser(rawData);
-    Node *parseTree = parser->parse();
+const void processData(const string &rawData, const string &outputFileName) {
+    const Parser *parser = new Parser(rawData);
+    const Node *parseTree = parser->parse();
+    cout << parseTree->toString() << endl;
+
     CodeGenerator *codeGenerator = new CodeGenerator(parseTree);
-    string output = codeGenerator->generateCode();
+    const string generatedCode = codeGenerator->generateCode();
+    cout << generatedCode << endl;
 
-    cout << endl << output << endl;
-
+    ofstream outputFile;
+    outputFile.open(outputFileName + OUTPUT_FILE_EXTENSION);
+    outputFile << generatedCode;
+    outputFile.close();
 }

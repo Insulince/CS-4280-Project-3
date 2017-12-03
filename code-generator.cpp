@@ -15,6 +15,7 @@ const string CodeGenerator::generateCode() {
     generatedCode += generateSegmentCode();
     generatedCode += generateStorageAllocationCode();
 
+    cout << "Code generation completed successfully.\n\n";
     return generatedCode;
 }
 
