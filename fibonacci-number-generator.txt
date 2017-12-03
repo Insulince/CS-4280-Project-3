@@ -1,0 +1,31 @@
+# Fibonacci Number Generator. Pass it a number, N, and it will output N many fibonacci numbers starting from the seed values "0" and "1". #
+
+Var
+n, # The number of Fibonacci numbers to output. #
+a, # The current fibonacci number. #
+b, # The previous fibonacci number. #
+t, # The temporary variable used to swap values. #
+i. # An iterator variable. #
+
+Begin
+    Input n; # Get the number of fibonacci numbers the user wants. #
+    a: 1; # Initialize the current fibonacci number to 1 (previous fibonacci number, b, is trivially 0 because the run-time initializes it to be so). #
+
+    Loop [i < n] Begin # While we have not printed out as many fibonacci numbers as the user requested... #
+        Check [i == 0] Begin # If this is the first fibonacci number... #
+            Output 0; # Output "0", the first fibonacci number in the sequence. It is given, not processed. #
+        End
+        Check [i == 1] Begin # If this is the second fibonacci number... #
+            Output 1; # Output "1", the second fibonacci number in the sequence. It is given, not processed. #
+        End
+        Check [i > 1] Begin # If this is a fibonacci number greater than the second (in index, not (necessarily) value)... #
+            t: a; # Store the current fibonacci number in the temporary variable. #
+            a: a + b; # Assign the current fibonacci number to be the current fibonacci number plus the previous fibonacci number. #
+            b: t; # Assign the previous fibonacci number to be the temporary variable, which contained the previous-current fibonacci number. #
+
+            Output a; # Output the new-current fibonacci number to the user. #
+        End
+
+        i: i + 1; # Iterate the loop. #
+    End
+End
