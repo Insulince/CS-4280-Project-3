@@ -78,20 +78,20 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 // Child 2: <expr>
 
                 generatedCode += generateCodeForNode(childNodes.at(0));
-                const string tempIdentifier = generateThrowAwayIdentifier();
-                generatedCode += CMD_STORE + SPACE + tempIdentifier + NEW_LINE;
+                const string throwAwayIdentifier = generateThrowAwayIdentifier();
+                generatedCode += CMD_STORE + SPACE + throwAwayIdentifier + NEW_LINE;
                 generatedCode += generateCodeForNode(childNodes.at(2));
-                generatedCode += CMD_ADD + SPACE + tempIdentifier + NEW_LINE;
+                generatedCode += CMD_ADD + SPACE + throwAwayIdentifier + NEW_LINE;
             } else if (childNodes.size() == 3 && childNodes.at(1)->getValue() == "-") {
                 // Child 0: <M>
                 // Child 1: -
                 // Child 2: <expr>
 
                 generatedCode += generateCodeForNode(childNodes.at(2));
-                const string tempIdentifier = generateThrowAwayIdentifier();
-                generatedCode += CMD_STORE + SPACE + tempIdentifier + NEW_LINE;
+                const string throwAwayIdentifier = generateThrowAwayIdentifier();
+                generatedCode += CMD_STORE + SPACE + throwAwayIdentifier + NEW_LINE;
                 generatedCode += generateCodeForNode(childNodes.at(0));
-                generatedCode += CMD_SUB + SPACE + tempIdentifier + NEW_LINE;
+                generatedCode += CMD_SUB + SPACE + throwAwayIdentifier + NEW_LINE;
             } else if (childNodes.size() == 1) {
                 // Child 0: <M>
 
@@ -106,20 +106,20 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 // Child 2: <M>
 
                 generatedCode += generateCodeForNode(childNodes.at(2));
-                const string tempIdentifier = generateThrowAwayIdentifier();
-                generatedCode += CMD_STORE + SPACE + tempIdentifier + NEW_LINE;
+                const string throwAwayIdentifier = generateThrowAwayIdentifier();
+                generatedCode += CMD_STORE + SPACE + throwAwayIdentifier + NEW_LINE;
                 generatedCode += generateCodeForNode(childNodes.at(0));
-                generatedCode += CMD_DIV + SPACE + tempIdentifier + NEW_LINE;
+                generatedCode += CMD_DIV + SPACE + throwAwayIdentifier + NEW_LINE;
             } else if (childNodes.size() == 3 && childNodes.at(1)->getValue() == "*") {
                 // Child 0: <F>
                 // Child 1: *
                 // Child 2: <M>
 
                 generatedCode += generateCodeForNode(childNodes.at(0));
-                const string tempIdentifier = generateThrowAwayIdentifier();
-                generatedCode += CMD_STORE + SPACE + tempIdentifier + NEW_LINE;
+                const string throwAwayIdentifier = generateThrowAwayIdentifier();
+                generatedCode += CMD_STORE + SPACE + throwAwayIdentifier + NEW_LINE;
                 generatedCode += generateCodeForNode(childNodes.at(2));
-                generatedCode += CMD_MULT + SPACE + tempIdentifier + NEW_LINE;
+                generatedCode += CMD_MULT + SPACE + throwAwayIdentifier + NEW_LINE;
             } else if (childNodes.size() == 1) {
                 // Child 0: <F>
 
@@ -227,9 +227,9 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 // Child 2: ;
 
                 generatedCode += generateCodeForNode(childNodes.at(1));
-                const string tempIdentifier = generateThrowAwayIdentifier();
-                generatedCode += CMD_STORE + SPACE + tempIdentifier + NEW_LINE;
-                generatedCode += CMD_WRITE + SPACE + tempIdentifier + NEW_LINE;
+                const string throwAwayIdentifier = generateThrowAwayIdentifier();
+                generatedCode += CMD_STORE + SPACE + throwAwayIdentifier + NEW_LINE;
+                generatedCode += CMD_WRITE + SPACE + throwAwayIdentifier + NEW_LINE;
             } else {
                 cerr << "Code Generator Error: No grammar path was recognized during processing of \"OUT\" node.\n";
             }
@@ -243,21 +243,21 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 // Child 5: ]
                 // Child 6: <stat>
 
-                const string toLabel = generateThrowAwayLabel();
-                generatedCode += CMD_BR + SPACE + toLabel + NEW_LINE;
-                const string fromLabel = generateThrowAwayLabel();
-                const string tempIdentifier = generateThrowAwayIdentifier();
-                const string segment = toLabel + COLON + SPACE + CMD_NOOP + NEW_LINE
+                const string segmentThrowAwayLabel = generateThrowAwayLabel();
+                generatedCode += CMD_BR + SPACE + segmentThrowAwayLabel + NEW_LINE;
+                const string parentThrowAwayLabel = generateThrowAwayLabel();
+                const string throwAwayIdentifier = generateThrowAwayIdentifier();
+                const string generatedSegmentCode = segmentThrowAwayLabel + COLON + SPACE + CMD_NOOP + NEW_LINE
                                        + generateCodeForNode(childNodes.at(4))
-                                       + CMD_STORE + SPACE + tempIdentifier + NEW_LINE
+                                       + CMD_STORE + SPACE + throwAwayIdentifier + NEW_LINE
                                        + generateCodeForNode(childNodes.at(2))
-                                       + CMD_SUB + SPACE + tempIdentifier + NEW_LINE
-                                       + generateCodeForNode(childNodes.at(3)) + SPACE + fromLabel + NEW_LINE
+                                       + CMD_SUB + SPACE + throwAwayIdentifier + NEW_LINE
+                                       + generateCodeForNode(childNodes.at(3)) + SPACE + parentThrowAwayLabel + NEW_LINE
                                        + generateCodeForNode(childNodes.at(6))
-                                       + CMD_BR + SPACE + fromLabel + NEW_LINE;
-                generatedSegments->push_back(segment);
+                                       + CMD_BR + SPACE + parentThrowAwayLabel + NEW_LINE;
+                generatedSegments->push_back(generatedSegmentCode);
                 generatedCode += CMD_STOP + NEW_LINE;
-                generatedCode += fromLabel + COLON + SPACE + CMD_NOOP + NEW_LINE;
+                generatedCode += parentThrowAwayLabel + COLON + SPACE + CMD_NOOP + NEW_LINE;
             } else {
                 cerr << "Code Generator Error: No grammar path was recognized during processing of \"IF\" node.\n";
             }
@@ -271,21 +271,21 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 // Child 5: ]
                 // Child 6: <stat>
 
-                const string toLabel = generateThrowAwayLabel();
-                generatedCode += CMD_BR + SPACE + toLabel + NEW_LINE;
-                const string fromLabel = generateThrowAwayLabel();
-                const string tempIdentifier = generateThrowAwayIdentifier();
-                const string segment = toLabel + COLON + SPACE + CMD_NOOP + NEW_LINE
+                const string segmentThrowAwayLabel = generateThrowAwayLabel();
+                generatedCode += CMD_BR + SPACE + segmentThrowAwayLabel + NEW_LINE;
+                const string parentThrowAwayLabel = generateThrowAwayLabel();
+                const string throwAwayIdentifier = generateThrowAwayIdentifier();
+                const string generatedSegmentCode = segmentThrowAwayLabel + COLON + SPACE + CMD_NOOP + NEW_LINE
                                        + generateCodeForNode(childNodes.at(4))
-                                       + CMD_STORE + SPACE + tempIdentifier + NEW_LINE
+                                       + CMD_STORE + SPACE + throwAwayIdentifier + NEW_LINE
                                        + generateCodeForNode(childNodes.at(2))
-                                       + CMD_SUB + SPACE + tempIdentifier + NEW_LINE
-                                       + generateCodeForNode(childNodes.at(3)) + SPACE + fromLabel + NEW_LINE
+                                       + CMD_SUB + SPACE + throwAwayIdentifier + NEW_LINE
+                                       + generateCodeForNode(childNodes.at(3)) + SPACE + parentThrowAwayLabel + NEW_LINE
                                        + generateCodeForNode(childNodes.at(6))
-                                       + CMD_BR + SPACE + toLabel + NEW_LINE;
-                generatedSegments->push_back(segment);
+                                       + CMD_BR + SPACE + segmentThrowAwayLabel + NEW_LINE;
+                generatedSegments->push_back(generatedSegmentCode);
                 generatedCode += CMD_STOP + NEW_LINE;
-                generatedCode += fromLabel + COLON + SPACE + CMD_NOOP + NEW_LINE;
+                generatedCode += parentThrowAwayLabel + COLON + SPACE + CMD_NOOP + NEW_LINE;
             } else {
                 cerr << "Code Generator Error: No grammar path was recognized during processing of \"LOOP\" node.\n";
             }
@@ -321,9 +321,9 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
             } else if (childNodes.size() == 1 && childNodes.at(0)->getValue() == "==") {
                 // Child 0: ==
 
-                const string temp = generateThrowAwayIdentifier();
-                generatedCode += CMD_STORE + SPACE + temp + NEW_LINE;
-                generatedCode += CMD_MULT + SPACE + temp + NEW_LINE;
+                const string throwAwayIdentifier = generateThrowAwayIdentifier();
+                generatedCode += CMD_STORE + SPACE + throwAwayIdentifier + NEW_LINE;
+                generatedCode += CMD_MULT + SPACE + throwAwayIdentifier + NEW_LINE;
                 generatedCode += CMD_BRPOS;
             } else if (childNodes.size() == 1 && childNodes.at(0)->getValue() == "!=") {
                 // Child 0: !=
@@ -334,7 +334,7 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
             }
         } else if (node->getNonTerminalIdentifier() == TERMINAL) {
             // This should not be possible to reach, but is included for consistency anyway.
-            cerr << "Code Generator Error: Processing of non-terminal node is marked as terminal.\n";
+            cerr << "Code Generator Error: Processing of non-terminal node is marked as terminal. This is unexpected behavior!\n";
         } else {
             cerr << "Code Generator Error: Processing of non-terminal node is unrecognized. Marked as value \"" + to_string(node->getNonTerminalIdentifier()) + "\n";
         }

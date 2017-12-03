@@ -1,7 +1,6 @@
 #ifndef P3_CODEGENERATOR_H
 #define P3_CODEGENERATOR_H
 
-
 #include "scope.h"
 #include "node.h"
 
@@ -43,23 +42,23 @@ private:
     const std::string SPACE = " ";
     const std::string COLON = ":";
     const std::string NEW_LINE = "\n";
+
+    const std::string generateCodeForNode(const Node *node);
+
+    const std::string generateSegmentCode() const;
+
+    const std::string generateStorageAllocationCode() const;
+
+    const std::string generateThrowAwayIdentifier();
+
+    const std::string generateThrowAwayLabel();
+
 public:
     explicit CodeGenerator(const Node *parseTree);
 
     ~CodeGenerator();
 
     const std::string generateCode();
-
-    const std::string generateCodeForNode(const Node *node);
-
-    const std::string generateStorageAllocationCode() const;
-
-    const std::string generateSegmentCode() const;
-
-    const std::string generateThrowAwayIdentifier();
-
-    const std::string generateThrowAwayLabel();
 };
-
 
 #endif //P3_CODEGENERATOR_H

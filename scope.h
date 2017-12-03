@@ -23,5 +23,4 @@ public:
     void setChildScopes(const std::vector<Scope> &childScopes);
 };
 
-
 #endif //P3_SCOPE_H
