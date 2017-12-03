@@ -1,0 +1,33 @@
+Begin
+    Var a, b, c.
+    a: 0;
+    b: 1;
+    c: 2;
+    Output a;
+    Output b;
+    Output c;
+    Begin
+        Var a, b, c.
+        a: 3;
+        b: 4;
+        c: 5;
+        Output a;
+        Output b;
+        Output c;
+        Begin
+            Var a, b, c.
+            a: 6;
+            b: 7;
+            c: 8;
+            Output a;
+            Output b;
+            Output c;
+        End
+        Output a;
+        Output b;
+        Output c;
+    End
+    Output a;
+    Output b;
+    Output c;
+End

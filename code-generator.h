@@ -9,7 +9,7 @@ private:
     const Node *parseTree;
     std::vector<std::string> *variables = new std::vector<std::string>();
     std::vector<std::string> *generatedSegments = new std::vector<std::string>();
-    Scope *currentScope = new Scope();
+    std::vector<Scope *> *scopes = new std::vector<Scope *>();
     int quantityThrowAwayIdentifiers = 0;
     int quantityThrowAwayLabels = 0;
 
@@ -59,6 +59,12 @@ public:
     ~CodeGenerator();
 
     const std::string generateCode();
+
+    const std::string resolveThrowAwayVariableName(const std::string &variableName) const;
+
+    const bool isDistinct(const std::string &basic_string);
+
+    const bool variableUniqueToThisScope(const std::string &variableName);
 };
 
 #endif //P3_CODEGENERATOR_H

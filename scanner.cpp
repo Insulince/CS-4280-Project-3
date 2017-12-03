@@ -1,7 +1,6 @@
 #include <map>
 #include <iostream>
 #include "scanner.h"
-#include "util.h"
 
 using namespace std;
 

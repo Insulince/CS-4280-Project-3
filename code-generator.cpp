@@ -4,6 +4,7 @@
 using namespace std;
 
 CodeGenerator::CodeGenerator(const Node *parseTree) : parseTree(parseTree) {
+    scopes->push_back(new Scope(0));
 }
 
 CodeGenerator::~CodeGenerator() = default;
@@ -40,8 +41,12 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 // Child 2: <stats>
                 // Child 3: End
 
+                scopes->push_back(new Scope(scopes->size()));
+
                 generatedCode += generateCodeForNode(childNodes.at(1));
                 generatedCode += generateCodeForNode(childNodes.at(2));
+
+                scopes->pop_back();
             } else {
                 cerr << "Code Generator Error: No grammar path was recognized during processing of \"BLOCK\" node.\n";
             }
@@ -53,7 +58,22 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 // Child 1: $identifier
                 // Child 2: <mvars>
 
-                variables->push_back(childNodes.at(1)->getValue());
+                if (variableUniqueToThisScope(childNodes.at(1)->getValue())) {
+                    vector<string> *variableNames = scopes->at(scopes->size() - 1)->getVariableNames();
+                    variableNames->push_back(childNodes.at(1)->getValue());
+                    scopes->at(scopes->size() - 1)->setVariableNames(variableNames);
+
+                    vector<string> *throwAwayVariableNames = scopes->at(scopes->size() - 1)->getThrowAwayVariableNames();
+                    throwAwayVariableNames->push_back(generateThrowAwayIdentifier());
+                    scopes->at(scopes->size() - 1)->setThrowAwayVariableNames(throwAwayVariableNames);
+                } else {
+                    cerr << "Code Generator Error: Cannot create variable \"" + childNodes.at(1)->getValue() + "\", because it is already defined in this scope!\n";
+                    exit(-1);
+                }
+
+                if (isDistinct(childNodes.at(1)->getValue())) {
+                    variables->push_back(childNodes.at(1)->getValue());
+                }
                 generatedCode += generateCodeForNode(childNodes.at(2));
             } else {
                 cerr << "Code Generator Error: No grammar path was recognized during processing of \"VARS\" node.\n";
@@ -66,7 +86,22 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 // Child 1: $identifier
                 // Child 2: <mvars>
 
-                variables->push_back(childNodes.at(1)->getValue());
+                if (variableUniqueToThisScope(childNodes.at(1)->getValue())) {
+                    vector<string> *variableNames = scopes->at(scopes->size() - 1)->getVariableNames();
+                    variableNames->push_back(childNodes.at(1)->getValue());
+                    scopes->at(scopes->size() - 1)->setVariableNames(variableNames);
+
+                    vector<string> *throwAwayVariableNames = scopes->at(scopes->size() - 1)->getThrowAwayVariableNames();
+                    throwAwayVariableNames->push_back(generateThrowAwayIdentifier());
+                    scopes->at(scopes->size() - 1)->setThrowAwayVariableNames(throwAwayVariableNames);
+                } else {
+                    cerr << "Code Generator Error: Cannot create variable \"" + childNodes.at(1)->getValue() + "\", because it is already defined in this scope!\n";
+                    exit(-1);
+                }
+
+                if (isDistinct(childNodes.at(1)->getValue())) {
+                    variables->push_back(childNodes.at(1)->getValue());
+                }
                 generatedCode += generateCodeForNode(childNodes.at(2));
             } else {
                 cerr << "Code Generator Error: No grammar path was recognized during processing of \"MVARS\" node.\n";
@@ -152,7 +187,7 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
             } else if (childNodes.size() == 1 && isalpha(childNodes.at(0)->getValue()[0])) {
                 // Child 0: $identifier
 
-                generatedCode += CMD_LOAD + SPACE + childNodes.at(0)->getValue() + NEW_LINE;
+                generatedCode += CMD_LOAD + SPACE + resolveThrowAwayVariableName(childNodes.at(0)->getValue()) + NEW_LINE;
             } else if (childNodes.size() == 1 && isdigit(childNodes.at(0)->getValue()[0])) {
                 // Child 0: $number
 
@@ -216,7 +251,7 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 // Child 1: $identifier
                 // Child 2: ;
 
-                generatedCode += CMD_READ + SPACE + childNodes.at(1)->getValue() + NEW_LINE;
+                generatedCode += CMD_READ + SPACE + resolveThrowAwayVariableName(childNodes.at(1)->getValue()) + NEW_LINE;
             } else {
                 cerr << "Code Generator Error: No grammar path was recognized during processing of \"IN\" node.\n";
             }
@@ -248,13 +283,13 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 const string parentThrowAwayLabel = generateThrowAwayLabel();
                 const string throwAwayIdentifier = generateThrowAwayIdentifier();
                 const string generatedSegmentCode = segmentThrowAwayLabel + COLON + SPACE + CMD_NOOP + NEW_LINE
-                                       + generateCodeForNode(childNodes.at(4))
-                                       + CMD_STORE + SPACE + throwAwayIdentifier + NEW_LINE
-                                       + generateCodeForNode(childNodes.at(2))
-                                       + CMD_SUB + SPACE + throwAwayIdentifier + NEW_LINE
-                                       + generateCodeForNode(childNodes.at(3)) + SPACE + parentThrowAwayLabel + NEW_LINE
-                                       + generateCodeForNode(childNodes.at(6))
-                                       + CMD_BR + SPACE + parentThrowAwayLabel + NEW_LINE;
+                                                    + generateCodeForNode(childNodes.at(4))
+                                                    + CMD_STORE + SPACE + throwAwayIdentifier + NEW_LINE
+                                                    + generateCodeForNode(childNodes.at(2))
+                                                    + CMD_SUB + SPACE + throwAwayIdentifier + NEW_LINE
+                                                    + generateCodeForNode(childNodes.at(3)) + SPACE + parentThrowAwayLabel + NEW_LINE
+                                                    + generateCodeForNode(childNodes.at(6))
+                                                    + CMD_BR + SPACE + parentThrowAwayLabel + NEW_LINE;
                 generatedSegments->push_back(generatedSegmentCode);
                 generatedCode += CMD_STOP + NEW_LINE;
                 generatedCode += parentThrowAwayLabel + COLON + SPACE + CMD_NOOP + NEW_LINE;
@@ -276,13 +311,13 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 const string parentThrowAwayLabel = generateThrowAwayLabel();
                 const string throwAwayIdentifier = generateThrowAwayIdentifier();
                 const string generatedSegmentCode = segmentThrowAwayLabel + COLON + SPACE + CMD_NOOP + NEW_LINE
-                                       + generateCodeForNode(childNodes.at(4))
-                                       + CMD_STORE + SPACE + throwAwayIdentifier + NEW_LINE
-                                       + generateCodeForNode(childNodes.at(2))
-                                       + CMD_SUB + SPACE + throwAwayIdentifier + NEW_LINE
-                                       + generateCodeForNode(childNodes.at(3)) + SPACE + parentThrowAwayLabel + NEW_LINE
-                                       + generateCodeForNode(childNodes.at(6))
-                                       + CMD_BR + SPACE + segmentThrowAwayLabel + NEW_LINE;
+                                                    + generateCodeForNode(childNodes.at(4))
+                                                    + CMD_STORE + SPACE + throwAwayIdentifier + NEW_LINE
+                                                    + generateCodeForNode(childNodes.at(2))
+                                                    + CMD_SUB + SPACE + throwAwayIdentifier + NEW_LINE
+                                                    + generateCodeForNode(childNodes.at(3)) + SPACE + parentThrowAwayLabel + NEW_LINE
+                                                    + generateCodeForNode(childNodes.at(6))
+                                                    + CMD_BR + SPACE + segmentThrowAwayLabel + NEW_LINE;
                 generatedSegments->push_back(generatedSegmentCode);
                 generatedCode += CMD_STOP + NEW_LINE;
                 generatedCode += parentThrowAwayLabel + COLON + SPACE + CMD_NOOP + NEW_LINE;
@@ -297,7 +332,7 @@ const string CodeGenerator::generateCodeForNode(const Node *node) {
                 // Child 3: ;
 
                 generatedCode += generateCodeForNode(childNodes.at(2));
-                generatedCode += CMD_STORE + SPACE + childNodes.at(0)->getValue() + NEW_LINE;
+                generatedCode += CMD_STORE + SPACE + resolveThrowAwayVariableName(childNodes.at(0)->getValue()) + NEW_LINE;
             } else {
                 cerr << "Code Generator Error: No grammar path was recognized during processing of \"ASSIGN\" node.\n";
             }
@@ -374,4 +409,48 @@ const string CodeGenerator::generateStorageAllocationCode() const {
     }
 
     return generatedStorageAllocationCode;
+}
+
+const string CodeGenerator::resolveThrowAwayVariableName(const string &variableName) const {
+    bool found = false;
+    int scopeIndex = scopes->size() - 1;
+    string throwAwayVariableName;
+
+    while (scopeIndex >= 0 && !found) {
+        for (unsigned int i = 0; i < scopes->at(scopeIndex)->getVariableNames()->size(); i++) {
+            if (scopes->at(scopeIndex)->getVariableNames()->at(i) == variableName) {
+                found = true;
+                throwAwayVariableName = scopes->at(scopeIndex)->getThrowAwayVariableNames()->at(i);
+            }
+        }
+
+        scopeIndex--;
+    }
+
+    if (found) {
+        return throwAwayVariableName;
+    } else {
+        cerr << "Code Generator Error: Variable \"" + variableName + "\" is not defined in any currently valid scope!\n";
+        exit(-1);
+    }
+}
+
+const bool CodeGenerator::isDistinct(const string &variableName) {
+    for (unsigned int i = 0; i < variables->size(); i++) {
+        if (variableName == variables->at(i)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+const bool CodeGenerator::variableUniqueToThisScope(const std::string &variableName) {
+    for (unsigned int i = 0; i < scopes->at(scopes->size() - 1)->getVariableNames()->size(); i++) {
+        if (variableName == scopes->at(scopes->size() - 1)->getVariableNames()->at(i)) {
+            return false;
+        }
+    }
+
+    return true;
 }

@@ -2,22 +2,37 @@
 
 using namespace std;
 
-Scope::Scope() = default;
+Scope::Scope(const int depth) : depth(depth) {
+}
 
 Scope::~Scope() = default;
 
-const vector<string> &Scope::getVariableNames() const {
+const int Scope::getDepth() const {
+    return depth;
+}
+
+vector<string> *Scope::getVariableNames() const {
     return variableNames;
 }
 
-void Scope::setVariableNames(const vector<string> &variableNames) {
+void Scope::setVariableNames(vector<string> *variableNames) {
     Scope::variableNames = variableNames;
 }
 
-const vector<Scope> &Scope::getChildScopes() const {
-    return childScopes;
+vector<string> *Scope::getThrowAwayVariableNames() const {
+    return throwAwayVariableNames;
 }
 
-void Scope::setChildScopes(const vector<Scope> &childScopes) {
-    Scope::childScopes = childScopes;
+void Scope::setThrowAwayVariableNames(vector<string> *throwAwayVariableNames) {
+    Scope::throwAwayVariableNames = throwAwayVariableNames;
+}
+
+const std::string Scope::toString() const {
+    string output = to_string(depth) + "\n";
+
+    for (unsigned int i = 0; i < variableNames->size(); i++) {
+        output += "--- " + variableNames->at(i) + ": " + throwAwayVariableNames->at(i) + "\n";
+    }
+
+    return output;
 }

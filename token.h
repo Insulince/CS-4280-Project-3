@@ -160,19 +160,19 @@ public:
 
     ~Token() = default;
 
-    const TOKEN_IDENTIFIER getTokenIdentifier() const{
+    const TOKEN_IDENTIFIER getTokenIdentifier() const {
         return tokenIdentifier;
     }
 
-    const std::string &getValue() const{
+    const std::string &getValue() const {
         return value;
     }
 
-    const std::string &getLineNumber() const{
+    const std::string &getLineNumber() const {
         return lineNumber;
     }
 
-    const std::string toString() const{
+    const std::string toString() const {
         return "Line Number: \"" + getLineNumber() + "\", Token Identifier: \"" + TOKEN_IDENTIFIER_TO_TOKEN_NAME_MAP.at(getTokenIdentifier()) + "\", Token Value: \"" + trim(getValue()) + "\"";
     }
 };

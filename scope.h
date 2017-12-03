@@ -6,21 +6,25 @@
 
 class Scope {
 private:
-    std::vector<std::string> variableNames;
-
-    std::vector<Scope> childScopes;
+    const int depth;
+    std::vector<std::string> *variableNames = new std::vector<std::string>();
+    std::vector<std::string> *throwAwayVariableNames = new std::vector<std::string>();
 public:
-    Scope();
+    Scope(const int depth);
 
     ~Scope();
 
-    const std::vector<std::string> &getVariableNames() const;
+    std::vector<std::string> *getVariableNames() const;
 
-    void setVariableNames(const std::vector<std::string> &variableNames);
+    void setVariableNames(std::vector<std::string> *variableNames);
 
-    const std::vector<Scope> &getChildScopes() const;
+    const int getDepth() const;
 
-    void setChildScopes(const std::vector<Scope> &childScopes);
+    std::vector<std::string> *getThrowAwayVariableNames() const;
+
+    void setThrowAwayVariableNames(std::vector<std::string> *throwAwayVariableNames);
+
+    const std::string toString() const;
 };
 
 #endif //P3_SCOPE_H
