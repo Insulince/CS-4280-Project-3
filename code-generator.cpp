@@ -287,23 +287,17 @@ const string CodeGenerator::descend(const Node *node) {
                 // Child 5: ]
                 // Child 6: <stat>
 
-                output += descend(children.at(4));
-                const string tempIdentifier = generateTempIdentifier();
-                output += "STORE " + tempIdentifier + "\n";
-                output += descend(children.at(2));
-                output += "SUB " + tempIdentifier + "\n";
-
                 const string toLabel = generateTempLabel();
                 output += "BR " + toLabel + "\n";
                 const string fromLabel = generateTempLabel();
-                const string tempSegmentIdentifier = generateTempIdentifier();
+                const string tempIdentifier = generateTempIdentifier();
                 const string segment = toLabel + ": NOOP\n"
+                                       + descend(children.at(4))
+                                       + "STORE " + tempIdentifier + "\n"
+                                       + descend(children.at(2))
+                                       + "SUB " + tempIdentifier + "\n"
                                        + logicallyInvert(descend(children.at(3))) + " " + fromLabel + "\n"
                                        + descend(children.at(6))
-                                       + descend(children.at(4))
-                                       + "STORE " + tempSegmentIdentifier + "\n"
-                                       + descend(children.at(2))
-                                       + "SUB " + tempSegmentIdentifier + "\n"
                                        + "BR " + toLabel + "\n";
                 segments->push_back(segment);
                 output += fromLabel + ": NOOP\n";
@@ -384,7 +378,7 @@ const string CodeGenerator::allocateStorage() const {
         output += variable + " 0\n";
     }
 
-    for (int i = 0; i < temp + 1; i++) {
+    for (int i = 1; i < temp + 1; i++) {
         output += "T" + to_string(i) + " 0\n";
     }
 
@@ -415,7 +409,7 @@ const string CodeGenerator::logicallyInvert(const string &condition) {
 //        const string temp = generateTempIdentifier();
 //        string output = "STORE " + temp + "\n";
 //        output += "MULT " + temp + "\n";
-//        output += "BRPOS";;
+//        output += "BRPOS";
 //
 //        return output;
 //    } else {
