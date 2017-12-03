@@ -9,247 +9,246 @@ CodeGenerator::CodeGenerator(const Node *parseTree) : parseTree(parseTree) {
 CodeGenerator::~CodeGenerator() = default;
 
 const string CodeGenerator::generateCode() {
-    string output = descend(parseTree);
-    output += "STOP\n";
-    output += erectSegments();
-    output += "STOP\n";
-    output += allocateStorage();
+    string generatedCode = generateCodeForNode(parseTree);
+    generatedCode += CMD_STOP + NEW_LINE;
+    generatedCode += generateSegmentCode();
+    generatedCode += generateStorageAllocationCode();
 
-    return output;
+    return generatedCode;
 }
 
-const string CodeGenerator::descend(const Node *node) {
-    string output;
+const string CodeGenerator::generateCodeForNode(const Node *node) {
+    string generatedCode;
 
     if (node->isNonTerminal()) {
-        const vector<Node *> &children = node->getChildren();
+        const vector<Node *> &childNodes = node->getChildren();
 
         if (node->getNonTerminalIdentifier() == PROGRAM) {
             cout << "PROCESSING NONTERMINAL: PROGRAM\n";
-            if (children.size() == 2) {
+            if (childNodes.size() == 2) {
                 // Child 0: <vars>
                 // Child 1: <block>
 
-                output += descend(children.at(0));
-                output += descend(children.at(1));
+                generatedCode += generateCodeForNode(childNodes.at(0));
+                generatedCode += generateCodeForNode(childNodes.at(1));
             } else {
-                cerr << "Code Generation Error: Processing of \"PROGRAM\" node is unrecognized.\n";
+                cerr << "Code Generation Error: No grammar path was recognized during processing of \"PROGRAM\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == BLOCK) {
             cout << "PROCESSING NONTERMINAL: BLOCK\n";
-            if (children.size() == 4) {
+            if (childNodes.size() == 4) {
                 // Child 0: Begin
                 // Child 1: <vars>
                 // Child 2: <stats>
                 // Child 3: End
 
-                output += descend(children.at(1));
-                output += descend(children.at(2));
+                generatedCode += generateCodeForNode(childNodes.at(1));
+                generatedCode += generateCodeForNode(childNodes.at(2));
             } else {
-                cerr << "Code Generation Error: Processing of \"BLOCK\" node is unrecognized.\n";
+                cerr << "Code Generation Error: No grammar path was recognized during processing of \"BLOCK\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == VARS) {
             cout << "PROCESSING NONTERMINAL: VARS\n";
-            if (children.empty()) {
+            if (childNodes.empty()) {
                 // $empty
-            } else if (children.size() == 3 && children.at(0)->getValue() == "Var") {
+            } else if (childNodes.size() == 3 && childNodes.at(0)->getValue() == "Var") {
                 // Child 0: Var
                 // Child 1: $identifier
                 // Child 2: <mvars>
 
-                variables->push_back(children.at(1)->getValue());
-                output += descend(children.at(2));
+                variables->push_back(childNodes.at(1)->getValue());
+                generatedCode += generateCodeForNode(childNodes.at(2));
             } else {
-                cerr << "Code Generation Error: Processing of \"VARS\" node is unrecognized.\n";
+                cerr << "Code Generation Error: No grammar path was recognized during processing of \"VARS\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == MVARS) {
             cout << "PROCESSING NONTERMINAL: MVARS\n";
-            if (children.size() == 1 && children.at(0)->getValue() == ".") {
+            if (childNodes.size() == 1 && childNodes.at(0)->getValue() == ".") {
                 // Child 0: .
-            } else if (children.size() == 3 && children.at(0)->getValue() == ",") {
+            } else if (childNodes.size() == 3 && childNodes.at(0)->getValue() == ",") {
                 // Child 0: ,
                 // Child 1: $identifier
                 // Child 2: <mvars>
 
-                variables->push_back(children.at(1)->getValue());
-                output += descend(children.at(2));
+                variables->push_back(childNodes.at(1)->getValue());
+                generatedCode += generateCodeForNode(childNodes.at(2));
             } else {
-                cerr << "Code Generation Error: Processing of \"MVARS\" node is unrecognized.\n";
+                cerr << "Code Generation Error: No grammar path was recognized during processing of \"MVARS\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == EXPR) {
             cout << "PROCESSING NONTERMINAL: EXPR\n";
-            if (children.size() == 3 && children.at(1)->getValue() == "+") {
+            if (childNodes.size() == 3 && childNodes.at(1)->getValue() == "+") {
                 // Child 0: <M>
                 // Child 1: +
                 // Child 2: <expr>
 
-                output += descend(children.at(0));
-                const string tempIdentifier = generateTempIdentifier();
-                output += "STORE " + tempIdentifier + "\n";
-                output += descend(children.at(2));
-                output += "ADD " + tempIdentifier + "\n";
-            } else if (children.size() == 3 && children.at(1)->getValue() == "-") {
+                generatedCode += generateCodeForNode(childNodes.at(0));
+                const string tempIdentifier = generateThrowAwayIdentifier();
+                generatedCode += CMD_STORE + SPACE + tempIdentifier + NEW_LINE;
+                generatedCode += generateCodeForNode(childNodes.at(2));
+                generatedCode += CMD_ADD + SPACE + tempIdentifier + NEW_LINE;
+            } else if (childNodes.size() == 3 && childNodes.at(1)->getValue() == "-") {
                 // Child 0: <M>
                 // Child 1: -
                 // Child 2: <expr>
 
-                output += descend(children.at(2));
-                const string tempIdentifier = generateTempIdentifier();
-                output += "STORE " + tempIdentifier + "\n";
-                output += descend(children.at(0));
-                output += "SUB " + tempIdentifier + "\n";
-            } else if (children.size() == 1) {
+                generatedCode += generateCodeForNode(childNodes.at(2));
+                const string tempIdentifier = generateThrowAwayIdentifier();
+                generatedCode += CMD_STORE + SPACE + tempIdentifier + NEW_LINE;
+                generatedCode += generateCodeForNode(childNodes.at(0));
+                generatedCode += CMD_SUB + SPACE + tempIdentifier + NEW_LINE;
+            } else if (childNodes.size() == 1) {
                 // Child 0: <M>
 
-                output += descend(children.at(0));
+                generatedCode += generateCodeForNode(childNodes.at(0));
             } else {
-                cerr << "Code Generation Error: Processing of \"EXPR\" node is unrecognized.\n";
+                cerr << "Code Generation Error: No grammar path was recognized during processing of \"EXPR\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == M) {
             cout << "PROCESSING NONTERMINAL: M\n";
-            if (children.size() == 3 && children.at(1)->getValue() == "%") {
+            if (childNodes.size() == 3 && childNodes.at(1)->getValue() == "%") {
                 // Child 0: <F>
                 // Child 1: %
                 // Child 2: <M>
 
-                output += descend(children.at(2));
-                const string tempIdentifier = generateTempIdentifier();
-                output += "STORE " + tempIdentifier + "\n";
-                output += descend(children.at(0));
-                output += "DIV " + tempIdentifier + "\n";
-            } else if (children.size() == 3 && children.at(1)->getValue() == "*") {
+                generatedCode += generateCodeForNode(childNodes.at(2));
+                const string tempIdentifier = generateThrowAwayIdentifier();
+                generatedCode += CMD_STORE + SPACE + tempIdentifier + NEW_LINE;
+                generatedCode += generateCodeForNode(childNodes.at(0));
+                generatedCode += CMD_DIV + SPACE + tempIdentifier + NEW_LINE;
+            } else if (childNodes.size() == 3 && childNodes.at(1)->getValue() == "*") {
                 // Child 0: <F>
                 // Child 1: *
                 // Child 2: <M>
 
-                output += descend(children.at(0));
-                const string tempIdentifier = generateTempIdentifier();
-                output += "STORE " + tempIdentifier + "\n";
-                output += descend(children.at(2));
-                output += "MULT " + tempIdentifier + "\n";
-            } else if (children.size() == 1) {
+                generatedCode += generateCodeForNode(childNodes.at(0));
+                const string tempIdentifier = generateThrowAwayIdentifier();
+                generatedCode += CMD_STORE + SPACE + tempIdentifier + NEW_LINE;
+                generatedCode += generateCodeForNode(childNodes.at(2));
+                generatedCode += CMD_MULT + SPACE + tempIdentifier + NEW_LINE;
+            } else if (childNodes.size() == 1) {
                 // Child 0: <F>
 
-                output += descend(children.at(0));
+                generatedCode += generateCodeForNode(childNodes.at(0));
             } else {
-                cerr << "Code Generation Error: Processing of \"M\" node is unrecognized.\n";
+                cerr << "Code Generation Error: No grammar path was recognized during processing of \"M\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == F) {
             cout << "PROCESSING NONTERMINAL: F\n";
-            if (children.size() == 3 && children.at(0)->getValue() == "(") {
+            if (childNodes.size() == 3 && childNodes.at(0)->getValue() == "(") {
                 // Child 0: (
                 // Child 1: <F>
                 // Child 2: )
 
-                output += descend(children.at(1));
-                output += "MULT -1\n";
-            } else if (children.size() == 1) {
+                generatedCode += generateCodeForNode(childNodes.at(1));
+                generatedCode += CMD_MULT + " -1\n";
+            } else if (childNodes.size() == 1) {
                 // Child 0: <R>
 
-                output += descend(children.at(0));
+                generatedCode += generateCodeForNode(childNodes.at(0));
             } else {
-                cerr << "Code Generation Error: Processing of \"F\" node is unrecognized.\n";
+                cerr << "Code Generation Error: No grammar path was recognized during processing of \"F\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == R) {
             cout << "PROCESSING NONTERMINAL: R\n";
-            if (children.size() == 3 && children.at(0)->getValue() == "[") {
+            if (childNodes.size() == 3 && childNodes.at(0)->getValue() == "[") {
                 // Child 0: [
                 // Child 1: <expr>
                 // Child 2: ]
 
-                output += descend(children.at(1));
-            } else if (children.size() == 1 && isalpha(children.at(0)->getValue()[0])) {
+                generatedCode += generateCodeForNode(childNodes.at(1));
+            } else if (childNodes.size() == 1 && isalpha(childNodes.at(0)->getValue()[0])) {
                 // Child 0: $identifier
 
-                output += "LOAD " + children.at(0)->getValue() + "\n";
-            } else if (children.size() == 1 && isdigit(children.at(0)->getValue()[0])) {
+                generatedCode += CMD_LOAD + SPACE + childNodes.at(0)->getValue() + NEW_LINE;
+            } else if (childNodes.size() == 1 && isdigit(childNodes.at(0)->getValue()[0])) {
                 // Child 0: $number
 
-                output += "LOAD " + children.at(0)->getValue() + "\n";
+                generatedCode += CMD_LOAD + SPACE + childNodes.at(0)->getValue() + NEW_LINE;
             } else {
-                cerr << "Code Generation Error: Processing of \"R\" node is unrecognized.\n";
+                cerr << "Code Generation Error: No grammar path was recognized during processing of \"R\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == STATS) {
             cout << "PROCESSING NONTERMINAL: STATS\n";
-            if (children.size() == 2) {
+            if (childNodes.size() == 2) {
                 // Child 0: <stat>
                 // Child 1: <mStat>
 
-                output += descend(children.at(0));
-                output += descend(children.at(1));
+                generatedCode += generateCodeForNode(childNodes.at(0));
+                generatedCode += generateCodeForNode(childNodes.at(1));
             } else {
-                cerr << "Code Generation Error: Processing of \"STATS\" node is unrecognized.\n";
+                cerr << "Code Generation Error: No grammar path was recognized during processing of \"STATS\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == MSTAT) {
             cout << "PROCESSING NONTERMINAL: MSTAT\n";
-            if (children.empty()) {
+            if (childNodes.empty()) {
                 // $empty
-            } else if (children.size() == 2 && children.at(0)->getValue() == "stat") {
+            } else if (childNodes.size() == 2 && childNodes.at(0)->getValue() == "stat") {
                 // Child 0: <stat>
                 // Child 1: <mStat>
 
-                output += descend(children.at(0));
-                output += descend(children.at(1));
+                generatedCode += generateCodeForNode(childNodes.at(0));
+                generatedCode += generateCodeForNode(childNodes.at(1));
             } else {
-                cerr << "Code Generation Error: Processing of \"MSTAT\" node is unrecognized.\n";
+                cerr << "Code Generation Error: No grammar path was recognized during processing of \"MSTAT\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == STAT) {
             cout << "PROCESSING NONTERMINAL: STAT\n";
-            if (children.size() == 1 && children.at(0)->getValue() == "in") {
+            if (childNodes.size() == 1 && childNodes.at(0)->getValue() == "in") {
                 // Child 0: <in>
 
-                output += descend(children.at(0));
-            } else if (children.size() == 1 && children.at(0)->getValue() == "out") {
+                generatedCode += generateCodeForNode(childNodes.at(0));
+            } else if (childNodes.size() == 1 && childNodes.at(0)->getValue() == "out") {
                 // Child 0: <out>
 
-                output += descend(children.at(0));
-            } else if (children.size() == 1 && children.at(0)->getValue() == "block") {
+                generatedCode += generateCodeForNode(childNodes.at(0));
+            } else if (childNodes.size() == 1 && childNodes.at(0)->getValue() == "block") {
                 // Child 0: <block>
 
-                output += descend(children.at(0));
-            } else if (children.size() == 1 && children.at(0)->getValue() == "if") {
+                generatedCode += generateCodeForNode(childNodes.at(0));
+            } else if (childNodes.size() == 1 && childNodes.at(0)->getValue() == "if") {
                 // Child 0: <if>
 
-                output += descend(children.at(0));
-            } else if (children.size() == 1 && children.at(0)->getValue() == "loop") {
+                generatedCode += generateCodeForNode(childNodes.at(0));
+            } else if (childNodes.size() == 1 && childNodes.at(0)->getValue() == "loop") {
                 // Child 0: <loop>
 
-                output += descend(children.at(0));
-            } else if (children.size() == 1 && children.at(0)->getValue() == "assign") {
+                generatedCode += generateCodeForNode(childNodes.at(0));
+            } else if (childNodes.size() == 1 && childNodes.at(0)->getValue() == "assign") {
                 // Child 0: <assign>
 
-                output += descend(children.at(0));
+                generatedCode += generateCodeForNode(childNodes.at(0));
             } else {
-                cerr << "Code Generation Error: Processing of \"STAT\" node is unrecognized.\n";
+                cerr << "Code Generation Error: No grammar path was recognized during processing of \"STAT\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == IN) {
             cout << "PROCESSING NONTERMINAL: IN\n";
-            if (children.size() == 3) {
+            if (childNodes.size() == 3) {
                 // Child 0: Input
                 // Child 1: $identifier
                 // Child 2: ;
 
-                output += "READ " + children.at(1)->getValue() + "\n";
+                generatedCode += CMD_READ + SPACE + childNodes.at(1)->getValue() + NEW_LINE;
             } else {
-                cerr << "Code Generation Error: Processing of \"IN\" node is unrecognized.\n";
+                cerr << "Code Generation Error: No grammar path was recognized during processing of \"IN\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == OUT) {
             cout << "PROCESSING NONTERMINAL: OUT\n";
-            if (children.size() == 3) {
+            if (childNodes.size() == 3) {
                 // Child 0: Output
                 // Child 1: <expr>
                 // Child 2: ;
 
-                output += descend(children.at(1));
-                const string tempIdentifier = generateTempIdentifier();
-                output += "STORE " + tempIdentifier + "\n";
-                output += "WRITE " + tempIdentifier + "\n";
+                generatedCode += generateCodeForNode(childNodes.at(1));
+                const string tempIdentifier = generateThrowAwayIdentifier();
+                generatedCode += CMD_STORE + SPACE + tempIdentifier + NEW_LINE;
+                generatedCode += CMD_WRITE + SPACE + tempIdentifier + NEW_LINE;
             } else {
-                cerr << "Code Generation Error: Processing of \"OUT\" node is unrecognized.\n";
+                cerr << "Code Generation Error: No grammar path was recognized during processing of \"OUT\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == IF) {
             cout << "PROCESSING NONTERMINAL: IF\n";
-            if (children.size() == 7) {
+            if (childNodes.size() == 7) {
                 // Child 0: Check
                 // Child 1: [
                 // Child 2: <expr>
@@ -258,26 +257,27 @@ const string CodeGenerator::descend(const Node *node) {
                 // Child 5: ]
                 // Child 6: <stat>
 
-                const string toLabel = generateTempLabel();
-                output += "BR " + toLabel + "\n";
-                const string fromLabel = generateTempLabel();
-                const string tempIdentifier = generateTempIdentifier();
-                const string segment = toLabel + ": NOOP\n"
-                                       + descend(children.at(4))
-                                       + "STORE " + tempIdentifier + "\n"
-                                       + descend(children.at(2))
-                                       + "SUB " + tempIdentifier + "\n"
-                                       + descend(children.at(3)) + " " + fromLabel + "\n"
-                                       + descend(children.at(6))
-                                       + "BR " + fromLabel + "\n";
-                segments->push_back(segment);
-                output += fromLabel + ": NOOP\n";
+                const string toLabel = generateThrowAwayLabel();
+                generatedCode += CMD_BR + SPACE + toLabel + NEW_LINE;
+                const string fromLabel = generateThrowAwayLabel();
+                const string tempIdentifier = generateThrowAwayIdentifier();
+                const string segment = toLabel + COLON + SPACE + CMD_NOOP + NEW_LINE
+                                       + generateCodeForNode(childNodes.at(4))
+                                       + CMD_STORE + SPACE + tempIdentifier + NEW_LINE
+                                       + generateCodeForNode(childNodes.at(2))
+                                       + CMD_SUB + SPACE + tempIdentifier + NEW_LINE
+                                       + generateCodeForNode(childNodes.at(3)) + SPACE + fromLabel + NEW_LINE
+                                       + generateCodeForNode(childNodes.at(6))
+                                       + CMD_BR + SPACE + fromLabel + NEW_LINE;
+                generatedSegments->push_back(segment);
+                generatedCode += CMD_STOP + NEW_LINE;
+                generatedCode += fromLabel + COLON + SPACE + CMD_NOOP + NEW_LINE;
             } else {
-                cerr << "Code Generation Error: Processing of \"IF\" node is unrecognized.\n";
+                cerr << "Code Generation Error: No grammar path was recognized during processing of \"IF\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == LOOP) {
             cout << "PROCESSING NONTERMINAL: LOOP\n";
-            if (children.size() == 7) {
+            if (childNodes.size() == 7) {
                 // Child 0: Loop
                 // Child 1: [
                 // Child 2: <expr>
@@ -286,110 +286,112 @@ const string CodeGenerator::descend(const Node *node) {
                 // Child 5: ]
                 // Child 6: <stat>
 
-                const string toLabel = generateTempLabel();
-                output += "BR " + toLabel + "\n";
-                const string fromLabel = generateTempLabel();
-                const string tempIdentifier = generateTempIdentifier();
-                const string segment = toLabel + ": NOOP\n"
-                                       + descend(children.at(4))
-                                       + "STORE " + tempIdentifier + "\n"
-                                       + descend(children.at(2))
-                                       + "SUB " + tempIdentifier + "\n"
-                                       + descend(children.at(3)) + " " + fromLabel + "\n"
-                                       + descend(children.at(6))
-                                       + "BR " + toLabel + "\n";
-                segments->push_back(segment);
-                output += fromLabel + ": NOOP\n";
+                const string toLabel = generateThrowAwayLabel();
+                generatedCode += CMD_BR + SPACE + toLabel + NEW_LINE;
+                const string fromLabel = generateThrowAwayLabel();
+                const string tempIdentifier = generateThrowAwayIdentifier();
+                const string segment = toLabel + COLON + SPACE + CMD_NOOP + NEW_LINE
+                                       + generateCodeForNode(childNodes.at(4))
+                                       + CMD_STORE + SPACE + tempIdentifier + NEW_LINE
+                                       + generateCodeForNode(childNodes.at(2))
+                                       + CMD_SUB + SPACE + tempIdentifier + NEW_LINE
+                                       + generateCodeForNode(childNodes.at(3)) + SPACE + fromLabel + NEW_LINE
+                                       + generateCodeForNode(childNodes.at(6))
+                                       + CMD_BR + SPACE + toLabel + NEW_LINE;
+                generatedSegments->push_back(segment);
+                generatedCode += CMD_STOP + NEW_LINE;
+                generatedCode += fromLabel + COLON + SPACE + CMD_NOOP + NEW_LINE;
             } else {
-                cerr << "Code Generation Error: Processing of \"LOOP\" node is unrecognized.\n";
+                cerr << "Code Generation Error: No grammar path was recognized during processing of \"LOOP\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == ASSIGN) {
             cout << "PROCESSING NONTERMINAL: ASSIGN\n";
-            if (children.size() == 4) {
+            if (childNodes.size() == 4) {
                 // Child 0: $identifier
                 // Child 1: :
                 // Child 2: <expr>
                 // Child 3: ;
 
-                output += descend(children.at(2));
-                output += "STORE " + children.at(0)->getValue() + "\n";
+                generatedCode += generateCodeForNode(childNodes.at(2));
+                generatedCode += CMD_STORE + SPACE + childNodes.at(0)->getValue() + NEW_LINE;
             } else {
-                cerr << "Code Generation Error: Processing of \"ASSIGN\" node is unrecognized.\n";
+                cerr << "Code Generation Error: No grammar path was recognized during processing of \"ASSIGN\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == RO) {
             cout << "PROCESSING NONTERMINAL: RO\n";
-            if (children.size() == 1 && children.at(0)->getValue() == "<") {
+            if (childNodes.size() == 1 && childNodes.at(0)->getValue() == "<") {
                 // Child 0: <
 
-                output += "BRZPOS";
-            } else if (children.size() == 1 && children.at(0)->getValue() == "<=") {
+                generatedCode += CMD_BRZPOS;
+            } else if (childNodes.size() == 1 && childNodes.at(0)->getValue() == "<=") {
                 // Child 0: <=
 
-                output += "BRPOS";
-            } else if (children.size() == 1 && children.at(0)->getValue() == ">") {
+                generatedCode += CMD_BRPOS;
+            } else if (childNodes.size() == 1 && childNodes.at(0)->getValue() == ">") {
                 // Child 0: >
 
-                output += "BRZNEG";
-            } else if (children.size() == 1 && children.at(0)->getValue() == ">=") {
+                generatedCode += CMD_BRZNEG;
+            } else if (childNodes.size() == 1 && childNodes.at(0)->getValue() == ">=") {
                 // Child 0: >=
 
-                output += "BRNEG";
-            } else if (children.size() == 1 && children.at(0)->getValue() == "==") {
+                generatedCode += CMD_BRNEG;
+            } else if (childNodes.size() == 1 && childNodes.at(0)->getValue() == "==") {
                 // Child 0: ==
 
-                const string temp = generateTempIdentifier();
-                output += "STORE " + temp + "\n";
-                output += "MULT " + temp + "\n";
-                output += "BRPOS";
-            } else if (children.size() == 1 && children.at(0)->getValue() == "!=") {
+                const string temp = generateThrowAwayIdentifier();
+                generatedCode += CMD_STORE + SPACE + temp + NEW_LINE;
+                generatedCode += CMD_MULT + SPACE + temp + NEW_LINE;
+                generatedCode += CMD_BRPOS;
+            } else if (childNodes.size() == 1 && childNodes.at(0)->getValue() == "!=") {
                 // Child 0: !=
 
-                output += "BRZERO";
+                generatedCode += CMD_BRZERO;
             } else {
-                cerr << "Code Generation Error: Processing of \"RO\" node is unrecognized.\n";
+                cerr << "Code Generation Error: No grammar path was recognized during processing of \"RO\" node.\n";
             }
         } else if (node->getNonTerminalIdentifier() == TERMINAL) {
             cout << "PROCESSING NONTERMINAL: TERMINAL\n";
             // This should not be possible to reach, but is included for consistency anyway.
             cerr << "Code Generation Error: Processing of non-terminal node is marked as terminal.\n";
         } else {
-            cerr << "Code Generation Error: Processing of non-terminal node is unrecognized. Marked as value \"" + to_string(node->getNonTerminalIdentifier()) + "\"\n";
+            cerr << "Code Generation Error: Processing of non-terminal node is unrecognized. Marked as value \"" + to_string(node->getNonTerminalIdentifier()) + "\NEW_LINE;
         }
     } else {
-        cout << "PROCESSING TERMINAL:    \"" + node->getValue() + "\"\n";
+        cout << "PROCESSING TERMINAL:    \"" + node->getValue() + "\n";
     }
 
-    return output;
+    return generatedCode;
 }
 
-const string CodeGenerator::generateTempIdentifier() {
-    return "T" + to_string(++temp);
+const string CodeGenerator::generateThrowAwayIdentifier() {
+    return THROW_AWAY_IDENTIFIER_PREFIX + to_string(quantityThrowAwayIdentifiers++);
 }
 
-const string CodeGenerator::generateTempLabel() {
-    return "L" + to_string(++temp2);
+const string CodeGenerator::generateThrowAwayLabel() {
+    return THROW_AWAY_LABEL_PREFIX + to_string(quantityThrowAwayLabels++);
 }
 
-const string CodeGenerator::allocateStorage() const {
-    string output;
+const string CodeGenerator::generateSegmentCode() const {
+    string generatedSegmentCode;
+
+    for (const string &generatedSegment : *generatedSegments) {
+        generatedSegmentCode += generatedSegment;
+        generatedSegmentCode += CMD_STOP + NEW_LINE;
+    }
+
+    return generatedSegmentCode;
+}
+
+const string CodeGenerator::generateStorageAllocationCode() const {
+    string generatedStorageAllocationCode;
 
     for (const string &variable : *variables) {
-        output += variable + " 0\n";
+        generatedStorageAllocationCode += variable + SPACE + to_string(INITIAL_VARIABLE_VALUE) + NEW_LINE;
     }
 
-    for (int i = 1; i < temp + 1; i++) {
-        output += "T" + to_string(i) + " 0\n";
+    for (int throwAwayIdentifierIndex = 0; throwAwayIdentifierIndex < quantityThrowAwayIdentifiers; throwAwayIdentifierIndex++) {
+        generatedStorageAllocationCode += THROW_AWAY_IDENTIFIER_PREFIX + to_string(throwAwayIdentifierIndex) + SPACE + to_string(INITIAL_VARIABLE_VALUE) + NEW_LINE;
     }
 
-    return output;
-}
-
-const string CodeGenerator::erectSegments() const {
-    string output;
-
-    for (const string &segment : *segments) {
-        output += segment;
-    }
-
-    return output;
+    return generatedStorageAllocationCode;
 }
