@@ -1,0 +1,27 @@
+Var a, b, c.
+Begin
+    Begin
+        Input c;
+        Output c;
+        a: 5;
+        Input b;
+        Check [b < 5] Output b;
+        Loop [b <= 5] Begin
+            b: b + 1;
+            Output b;
+        End
+        Check [a > 4] Output a;
+        Check [a >= 4] Output a;
+        Check [a == 5] Output a;
+        Check [a != 4] Output a;
+
+        Output b;
+        Output (b);
+        Output b * a;
+        Output b % 2;
+        Output b - a;
+        Output b + a;
+
+        Output (b) * [a + b] % 2 - (a) + b;
+    End
+End
