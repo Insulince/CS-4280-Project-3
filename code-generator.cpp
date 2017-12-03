@@ -400,10 +400,6 @@ const string CodeGenerator::generateSegmentCode() const {
 const string CodeGenerator::generateStorageAllocationCode() const {
     string generatedStorageAllocationCode;
 
-    for (const string &variable : *variables) {
-        generatedStorageAllocationCode += variable + SPACE + to_string(INITIAL_VARIABLE_VALUE) + NEW_LINE;
-    }
-
     for (int throwAwayIdentifierIndex = 0; throwAwayIdentifierIndex < quantityThrowAwayIdentifiers; throwAwayIdentifierIndex++) {
         generatedStorageAllocationCode += THROW_AWAY_IDENTIFIER_PREFIX + to_string(throwAwayIdentifierIndex) + SPACE + to_string(INITIAL_VARIABLE_VALUE) + NEW_LINE;
     }
