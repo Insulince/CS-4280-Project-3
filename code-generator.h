@@ -29,8 +29,6 @@ public:
     const std::string generateTempIdentifier();
 
     const std::string generateTempLabel();
-
-    const std::string logicallyInvert(const std::string &condition);
 };
 
 
